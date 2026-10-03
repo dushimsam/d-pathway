@@ -107,6 +107,16 @@ d-pathway/
 
 ## Note on Node version
 
-This machine's default Node is 23.x, which the NestJS/Next toolchains do not
-support. Use Node 24 LTS (e.g. `nvm use 24`) for all `api/` and `web/` commands.
+Use **Node 24 LTS**. Node 23 (and other odd, non-LTS releases) crash the NestJS
+CLI with `ERR_REQUIRE_CYCLE_MODULE` on `nest build` / `nest start`, because
+`@angular-devkit/schematics` requires `^22.22.3 || ^24.15.0 || >=26`.
+
+Both apps ship an `.nvmrc`, so from either folder just run:
+
+```bash
+nvm use        # selects Node 24 from .nvmrc
+```
+
+The `engines` field in each `package.json` will also warn you if you are on an
+unsupported Node version.
 
