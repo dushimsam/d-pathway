@@ -16,7 +16,7 @@ if (!databaseUrl) {
   throw new Error('DATABASE_URL is not set. Copy .env.example to .env first.');
 }
 
-export const AppDataSource = new DataSource({
+export default new DataSource({
   type: 'postgres',
   url: databaseUrl,
   entities: ['src/**/*.entity.ts'],
@@ -25,5 +25,3 @@ export const AppDataSource = new DataSource({
   synchronize: false,
   logging: false,
 });
-
-export default AppDataSource;
