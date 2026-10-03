@@ -15,7 +15,7 @@ PostgreSQL database.
 
 ## Repository
 
-<!-- TODO: add the public repository URL here -->
+https://github.com/dushimsam/d-pathway
 
 ## Tech stack
 
@@ -54,7 +54,7 @@ npm run dev
 
 ## Designs
 
-Figma style guide: <!-- TODO: paste the Figma file URL here -->
+Figma style guide: https://www.figma.com/design/WPF8i1nMgGMLWKdza0obrV/D-Pathway-%E2%80%93-UI-Design?node-id=0-1
 
 Screenshots of the delivered foundation:
 
