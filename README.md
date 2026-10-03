@@ -54,11 +54,29 @@ npm run dev
 
 ## Designs
 
-<!-- TODO: add Figma link and screenshots under docs/screenshots/ -->
+Figma style guide: <!-- TODO: paste the Figma file URL here -->
+
+Screenshots of the delivered foundation:
+
+| Home page | API docs (Swagger) |
+|---|---|
+| ![Home page](docs/screenshots/home.png) | ![Swagger UI](docs/screenshots/swagger.png) |
 
 ## API documentation
 
 Swagger UI: http://localhost:3000/docs
+
+Seven routes under the `/api/v1` prefix:
+
+| Method | Path | Purpose |
+|---|---|---|
+| GET | `/health` | Service + database health |
+| POST | `/pathways` | Create a pathway (starts `DRAFT`) |
+| GET | `/pathways` | List pathways (`?status=PUBLISHED` optional) |
+| GET | `/pathways/:id` | Get one pathway |
+| PATCH | `/pathways/:id` | Update a draft (409 if published) |
+| POST | `/pathways/:id/publish` | Publish (409 if already published) |
+| DELETE | `/pathways/:id` | Soft-delete |
 
 ## Deployment plan
 
@@ -68,4 +86,27 @@ Actions deploying on push to `main`.
 
 ## Project structure
 
-_(See the full tree in the project documentation.)_
+```
+d-pathway/
+├── docker-compose.yml        # postgres:16-alpine
+├── api/                      # NestJS 12 (ESM)
+│   └── src/
+│       ├── main.ts           # /api/v1 prefix, ValidationPipe, CORS, Swagger
+│       ├── config/           # @nestjs/config + Joi schema
+│       ├── database/         # TypeOrmModule, data-source, migrations, seeds
+│       ├── common/           # BaseEntity, PathwayStatus enum, exception filter
+│       └── modules/
+│           ├── health/       # GET /health
+│           └── pathways/     # entity, controller, service (+spec), DTOs
+└── web/                      # Next.js 16 (App Router)
+    └── src/
+        ├── app/              # layout, home page, globals.css (design tokens)
+        ├── components/       # site-header, pathway-card, empty-state
+        └── lib/              # api client, Pathway type
+```
+
+## Note on Node version
+
+This machine's default Node is 23.x, which the NestJS/Next toolchains do not
+support. Use Node 24 LTS (e.g. `nvm use 24`) for all `api/` and `web/` commands.
+
