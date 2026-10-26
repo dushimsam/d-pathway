@@ -1,0 +1,13 @@
+# Caddy reverse proxy with automatic TLS (Let's Encrypt).
+# Replace d-pathway.rw with the real domain on the Kigali host.
+
+api.d-pathway.rw {
+	encode gzip
+	reverse_proxy 127.0.0.1:3001
+}
+
+d-pathway.rw {
+	encode gzip
+	# Next.js server (web/) runs on 3000.
+	reverse_proxy 127.0.0.1:3000
+}

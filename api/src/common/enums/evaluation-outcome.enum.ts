@@ -1,0 +1,4 @@
+export enum EvaluationOutcome {
+  SELECTED_FOR_INTERVIEW = 'SELECTED_FOR_INTERVIEW',
+  NOT_SELECTED = 'NOT_SELECTED',
+}
