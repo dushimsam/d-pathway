@@ -141,3 +141,7 @@ dist
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 .vite/
+
+# Local-only demo/presentation credentials — never commit
+CREDENTIALS.local.md
+*.local.md
