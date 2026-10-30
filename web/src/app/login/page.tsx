@@ -51,11 +51,11 @@ function LoginForm() {
       footer={
         <>
           New here?{' '}
-          <Link href="/register/graduate" className="text-primary hover:underline">
+          <Link href="/register/graduate" className="text-teal hover:underline">
             Join as a graduate
           </Link>{' '}
           or{' '}
-          <Link href="/register/company" className="text-primary hover:underline">
+          <Link href="/register/company" className="text-teal hover:underline">
             as a company
           </Link>
           .

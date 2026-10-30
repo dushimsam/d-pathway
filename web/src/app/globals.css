@@ -19,7 +19,19 @@
   --color-danger: #c0392b;
   --color-danger-50: #f9e9e7;
 
+  /* Dark "premium" palette used by the public surface (landing + auth) */
+  --color-ink: #080b11;
+  --color-ink-rise: #0c1119;
+  --color-surface: #121a26;
+  --color-hi: #f3f6fb;
+  --color-mid: #9aa6b6;
+  --color-dim: #5e6a7a;
+  --color-teal: #2ee6c8;
+  --color-teal-dark: #14b8a6;
+  --color-cyan: #38d9f6;
+
   --font-sans: var(--font-ibm-plex), system-ui, sans-serif;
+  --font-display: var(--font-space), var(--font-ibm-plex), system-ui, sans-serif;
 
   --radius-input: 8px;
   --radius-card: 16px;

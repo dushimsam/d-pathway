@@ -49,7 +49,7 @@ export default function RegisterCompanyPage() {
       footer={
         <>
           Already have an account?{' '}
-          <Link href="/login" className="text-primary hover:underline">
+          <Link href="/login" className="text-teal hover:underline">
             Sign in
           </Link>
         </>
