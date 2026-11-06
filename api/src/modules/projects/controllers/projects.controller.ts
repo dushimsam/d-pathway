@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   ParseUUIDPipe,
@@ -65,5 +66,11 @@ export class ProjectsController {
   @Post(':id/close')
   close(@CurrentUser() user: AuthUser, @Param('id', ParseUUIDPipe) id: string) {
     return this.projects.close(user.id, id);
+  }
+
+  @Roles(UserRole.COMPANY)
+  @Delete(':id')
+  remove(@CurrentUser() user: AuthUser, @Param('id', ParseUUIDPipe) id: string) {
+    return this.projects.remove(user.id, id);
   }
 }

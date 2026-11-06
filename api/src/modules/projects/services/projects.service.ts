@@ -5,7 +5,9 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { ProjectStatus } from '../../../common/enums/index.js';
+import { ApplicationStatus, ProjectStatus } from '../../../common/enums/index.js';
+import { CacheService } from '../../../redis/cache.service.js';
+import { CATALOGUE_CACHE_PREFIX } from '../../../redis/redis.constants.js';
 import { CompaniesService } from '../../companies/services/companies.service.js';
 import { Application } from '../../applications/entities/application.entity.js';
 import { Project } from '../entities/project.entity.js';
@@ -13,6 +15,7 @@ import { CreateProjectDto } from '../dto/create-project.dto.js';
 import { UpdateProjectDto } from '../dto/update-project.dto.js';
 import {
   assertClosable,
+  assertDeletable,
   assertEditable,
   assertPublishable,
   assertPublishableState,
@@ -34,7 +37,13 @@ export class ProjectsService {
     @InjectRepository(Application)
     private readonly applications: Repository<Application>,
     private readonly companies: CompaniesService,
+    private readonly cache: CacheService,
   ) {}
+
+  /** Drop every cached catalogue page after a write that changes what's listed. */
+  private invalidateCatalogue(): Promise<void> {
+    return this.cache.invalidatePrefix(CATALOGUE_CACHE_PREFIX);
+  }
 
   /** Counts of applications grouped by status for each of the given projects. */
   private async countsByStatusForProjects(
@@ -93,7 +102,9 @@ export class ProjectsService {
       hasApplicationDeadlinePassed(project, now)
     ) {
       project.status = ProjectStatus.IN_PROGRESS;
-      return this.projects.save(project);
+      const saved = await this.projects.save(project);
+      await this.invalidateCatalogue();
+      return saved;
     }
     return project;
   }
@@ -112,10 +123,14 @@ export class ProjectsService {
       prizeAmount: dto.prizeAmount ?? null,
       prizeCurrency:
         dto.prizeAmount != null ? dto.prizeCurrency ?? 'RWF' : null,
+      coverImageUrl: dto.coverImageUrl ?? null,
+      coverImagePublicId: dto.coverImagePublicId ?? null,
       status: ProjectStatus.DRAFT,
       publishedAt: null,
     });
-    return this.projects.save(project);
+    const saved = await this.projects.save(project);
+    await this.invalidateCatalogue();
+    return saved;
   }
 
   async update(userId: string, id: string, dto: UpdateProjectDto): Promise<Project> {
@@ -140,8 +155,13 @@ export class ProjectsService {
       project.prizeCurrency =
         dto.prizeAmount != null ? dto.prizeCurrency ?? project.prizeCurrency ?? 'RWF' : null;
     }
+    if (dto.coverImageUrl !== undefined) project.coverImageUrl = dto.coverImageUrl;
+    if (dto.coverImagePublicId !== undefined)
+      project.coverImagePublicId = dto.coverImagePublicId;
 
-    return this.projects.save(project);
+    const saved = await this.projects.save(project);
+    await this.invalidateCatalogue();
+    return saved;
   }
 
   async publish(userId: string, id: string): Promise<Project> {
@@ -152,7 +172,9 @@ export class ProjectsService {
     assertPublishable(project, new Date()); // P3
     project.status = ProjectStatus.OPEN;
     project.publishedAt = new Date();
-    return this.projects.save(project);
+    const saved = await this.projects.save(project);
+    await this.invalidateCatalogue();
+    return saved;
   }
 
   async close(userId: string, id: string): Promise<Project> {
@@ -161,7 +183,30 @@ export class ProjectsService {
     this.assertOwnedByCompany(project, companyId);
     assertClosable(project);
     project.status = ProjectStatus.CLOSED;
-    return this.projects.save(project);
+    const saved = await this.projects.save(project);
+    await this.invalidateCatalogue();
+    return saved;
+  }
+
+  /**
+   * Delete a project the company owns. Blocked once any applicant has been
+   * accepted (P-DEL) — a selected team has committed to the work. Pending and
+   * declined applications (and any team invitations) are removed with it via the
+   * database's ON DELETE CASCADE.
+   */
+  async remove(userId: string, id: string): Promise<{ id: string }> {
+    const companyId = await this.companyIdForUser(userId);
+    const project = await this.findByIdOrThrow(id);
+    this.assertOwnedByCompany(project, companyId);
+
+    const accepted = await this.applications.count({
+      where: { projectId: id, status: ApplicationStatus.ACCEPTED },
+    });
+    assertDeletable(accepted); // P-DEL
+
+    await this.projects.delete(id);
+    await this.invalidateCatalogue();
+    return { id };
   }
 
   async listMine(userId: string): Promise<

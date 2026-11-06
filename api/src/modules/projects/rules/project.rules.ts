@@ -59,6 +59,18 @@ export function assertPublishableState(project: Pick<Project, 'status'>): void {
   }
 }
 
+/**
+ * P-DEL: a project may be deleted only if no applicant has been selected
+ * (accepted) for it — a selected team has already committed to the work.
+ */
+export function assertDeletable(acceptedApplications: number): void {
+  if (acceptedApplications > 0) {
+    throw new ConflictException(
+      'This project cannot be deleted because a team has already been selected for it. Close it instead.',
+    );
+  }
+}
+
 /** P4: only an IN_PROGRESS project can be closed. */
 export function assertClosable(project: Pick<Project, 'status'>): void {
   if (project.status !== ProjectStatus.IN_PROGRESS) {
