@@ -1,10 +1,10 @@
 'use client';
 
-import { use, useState } from 'react';
+import { use, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { format } from 'date-fns';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { ExternalLink, FileText, Star } from 'lucide-react';
+import { AlertTriangle, ExternalLink, FileText, Star } from 'lucide-react';
 import { PageHeader } from '@/components/PageHeader';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
@@ -28,6 +28,7 @@ export default function EvaluatePage({
   const [feedback, setFeedback] = useState('');
   const [outcome, setOutcome] = useState<EvaluationOutcome | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [editing, setEditing] = useState(false);
 
   const deliverableQuery = useQuery({
     queryKey: ['deliverable', id],
@@ -45,21 +46,33 @@ export default function EvaluatePage({
     },
   });
 
+  const existingEval = evaluationQuery.data;
+
   const record = useMutation({
-    mutationFn: () =>
-      api.post<Evaluation>(`/deliverables/${id}/evaluation`, {
-        score,
-        feedback: feedback.trim(),
-        outcome,
-      }),
+    mutationFn: () => {
+      const payload = { score, feedback: feedback.trim(), outcome };
+      return existingEval
+        ? api.patch<Evaluation>(`/deliverables/${id}/evaluation`, payload)
+        : api.post<Evaluation>(`/deliverables/${id}/evaluation`, payload);
+    },
     onSuccess: () => {
       setError(null);
+      setEditing(false);
       queryClient.invalidateQueries({ queryKey: ['evaluation', id] });
       queryClient.invalidateQueries({ queryKey: ['dashboard', 'company'] });
     },
     onError: (e) =>
       setError(e instanceof ApiError ? e.message : 'Could not record the evaluation.'),
   });
+
+  // When entering edit mode, prefill the form from the recorded evaluation.
+  useEffect(() => {
+    if (editing && existingEval) {
+      setScore(existingEval.score);
+      setFeedback(existingEval.feedback);
+      setOutcome(existingEval.outcome);
+    }
+  }, [editing, existingEval]);
 
   if (deliverableQuery.isLoading || evaluationQuery.isLoading) {
     return (
@@ -74,11 +87,12 @@ export default function EvaluatePage({
   }
 
   const d = deliverableQuery.data;
-  const existing = evaluationQuery.data;
-  const readOnly = Boolean(existing);
-  const effScore = existing?.score ?? score;
-  const effFeedback = existing?.feedback ?? feedback;
-  const effOutcome = existing?.outcome ?? outcome;
+  const existing = existingEval;
+  // Editable form is shown when there's no evaluation yet, or we're editing one.
+  const readOnly = Boolean(existing) && !editing;
+  const effScore = readOnly ? existing!.score : score;
+  const effFeedback = readOnly ? existing!.feedback : feedback;
+  const effOutcome = readOnly ? existing!.outcome : outcome;
 
   const canSubmit =
     !readOnly && score >= 1 && feedback.trim().length > 0 && outcome !== null && !record.isPending;
@@ -145,8 +159,25 @@ export default function EvaluatePage({
 
         <Card className="flex flex-col gap-5">
           <h2 className="text-[16px] font-semibold text-n900">
-            {readOnly ? 'Recorded evaluation' : 'Record evaluation'}
+            {editing
+              ? 'Edit evaluation'
+              : readOnly
+                ? 'Recorded evaluation'
+                : 'Record evaluation'}
           </h2>
+
+          {existing?.stale && !editing && (
+            <div className="flex items-start gap-2 rounded-[8px] border border-warning-50 bg-warning-50 p-3">
+              <AlertTriangle className="mt-0.5 h-4 w-4 text-warning" />
+              <p className="text-[13px] text-n700">
+                The student resubmitted after this evaluation
+                {existing.evaluatedVersion && d.version
+                  ? ` (judged v${existing.evaluatedVersion}, latest is v${d.version})`
+                  : ''}
+                . Review the new work and update your verdict.
+              </p>
+            </div>
+          )}
 
           <Field label="Score">
             <div className="flex gap-2">
@@ -213,17 +244,40 @@ export default function EvaluatePage({
             <div className="flex items-center gap-2">
               <StatusPill status={existing.outcome} />
               <span className="text-[12px] text-n500">
-                Recorded {format(new Date(existing.evaluatedAt), 'd MMM yyyy')} · evaluations are final
+                Recorded {format(new Date(existing.evaluatedAt), 'd MMM yyyy')}
               </span>
             </div>
           )}
 
           {error && <p className="text-[14px] text-danger">{error}</p>}
 
-          {!readOnly && (
-            <Button disabled={!canSubmit} onClick={() => record.mutate()}>
-              {record.isPending ? 'Recording…' : 'Record evaluation'}
+          {readOnly && (
+            <Button variant="secondary" onClick={() => setEditing(true)}>
+              Edit evaluation
             </Button>
+          )}
+
+          {!readOnly && (
+            <div className="flex gap-2">
+              <Button disabled={!canSubmit} onClick={() => record.mutate()}>
+                {record.isPending
+                  ? 'Saving…'
+                  : existing
+                    ? 'Save changes'
+                    : 'Record evaluation'}
+              </Button>
+              {editing && (
+                <Button
+                  variant="ghost"
+                  onClick={() => {
+                    setEditing(false);
+                    setError(null);
+                  }}
+                >
+                  Cancel
+                </Button>
+              )}
+            </div>
           )}
         </Card>
       </div>
