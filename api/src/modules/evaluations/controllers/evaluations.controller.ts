@@ -4,6 +4,7 @@ import {
   Get,
   Param,
   ParseUUIDPipe,
+  Patch,
   Post,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
@@ -12,6 +13,7 @@ import { Roles } from '../../../common/decorators/roles.decorator.js';
 import { UserRole } from '../../../common/enums/index.js';
 import { EvaluationsService } from '../services/evaluations.service.js';
 import { CreateEvaluationDto } from '../dto/create-evaluation.dto.js';
+import { UpdateEvaluationDto } from '../dto/update-evaluation.dto.js';
 
 @ApiTags('evaluations')
 @ApiBearerAuth()
@@ -27,6 +29,16 @@ export class EvaluationsController {
     @Body() dto: CreateEvaluationDto,
   ) {
     return this.evaluations.create(user.id, deliverableId, dto);
+  }
+
+  @Roles(UserRole.COMPANY)
+  @Patch(':id/evaluation')
+  update(
+    @CurrentUser() user: AuthUser,
+    @Param('id', ParseUUIDPipe) deliverableId: string,
+    @Body() dto: UpdateEvaluationDto,
+  ) {
+    return this.evaluations.update(user.id, deliverableId, dto);
   }
 
   // Concerned graduate or owning company; enforced in the service (V3).
