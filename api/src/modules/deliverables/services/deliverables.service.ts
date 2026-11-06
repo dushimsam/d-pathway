@@ -2,6 +2,8 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ApplicationsService } from '../../applications/services/applications.service.js';
+import { EventsPublisher } from '../../activity/services/events.publisher.js';
+import { Evaluation } from '../../evaluations/entities/evaluation.entity.js';
 import { Deliverable } from '../entities/deliverable.entity.js';
 import { SubmitDeliverableDto } from '../dto/submit-deliverable.dto.js';
 import {
@@ -16,12 +18,19 @@ export class DeliverablesService {
   constructor(
     @InjectRepository(Deliverable)
     private readonly deliverables: Repository<Deliverable>,
+    // Resubmission flips any existing evaluation to stale; writes to the
+    // evaluation proper still go through EvaluationsService.
+    @InjectRepository(Evaluation)
+    private readonly evaluations: Repository<Evaluation>,
     private readonly applications: ApplicationsService,
+    private readonly events: EventsPublisher,
   ) {}
 
   /**
-   * Submit (or, before the deadline, replace) the single deliverable for an
-   * accepted application. D1–D4 are enforced server-side regardless of client.
+   * Submit or resubmit the single deliverable for an accepted application.
+   * D1–D4 are enforced server-side. First submission must beat the deadline;
+   * a resubmission is allowed afterwards (the company invited the improvement by
+   * leaving feedback) and marks the prior evaluation stale.
    */
   async submit(
     userId: string,
@@ -33,23 +42,43 @@ export class DeliverablesService {
       applicationId,
     );
     assertApplicationAccepted(application.status); // D1
-    assertBeforeSubmissionDeadline(
-      application.project.submissionDeadline,
-      new Date(),
-    ); // D2
     assertHasTarget(dto.linkUrl, dto.fileUrl); // D4
 
-    // D3: one deliverable per application; before the deadline replace in place.
+    // D3: one deliverable per application.
     const existing = await this.deliverables.findOne({ where: { applicationId } });
-    const deliverable =
-      existing ??
-      this.deliverables.create({ applicationId });
+    if (!existing) {
+      // D2: the first submission must land before the deadline.
+      assertBeforeSubmissionDeadline(
+        application.project.submissionDeadline,
+        new Date(),
+      );
+    }
+
+    const deliverable = existing ?? this.deliverables.create({ applicationId });
     deliverable.linkUrl = dto.linkUrl ?? null;
     deliverable.fileUrl = dto.fileUrl ?? null;
     deliverable.filePublicId = dto.filePublicId ?? null;
     deliverable.note = dto.note;
     deliverable.submittedAt = new Date();
-    return this.deliverables.save(deliverable);
+    if (existing) deliverable.version = existing.version + 1;
+    const saved = await this.deliverables.save(deliverable);
+
+    // A resubmission invalidates the prior verdict until the company re-evaluates.
+    if (existing) {
+      await this.evaluations.update(
+        { deliverableId: saved.id },
+        { stale: true },
+      );
+    }
+
+    await this.events.deliverableSubmitted({
+      graduateId: application.graduateId,
+      graduateName: application.graduate.fullName,
+      companyId: application.project.companyId,
+      projectId: application.projectId,
+      projectTitle: application.project.title,
+    });
+    return saved;
   }
 
   /** Role-aware read: graduate owner or the owning company. */
@@ -61,7 +90,7 @@ export class DeliverablesService {
       user.role === 'COMPANY'
         ? (await this.applications.loadForOwningCompany(user.id, applicationId))
             .application
-        : await this.applications.loadForOwningGraduate(user.id, applicationId);
+        : await this.applications.loadForTeamGraduate(user.id, applicationId);
 
     const deliverable = await this.deliverables.findOne({
       where: { applicationId: application.id },

@@ -21,6 +21,10 @@ export class Deliverable extends BaseEntity {
   @Column({ type: 'timestamptz' })
   submittedAt!: Date;
 
+  /** Bumped each time the graduate resubmits; lets the company see newer work. */
+  @Column({ type: 'int', default: 1 })
+  version!: number;
+
   @Index({ unique: true })
   @Column({ type: 'uuid' })
   applicationId!: string;
