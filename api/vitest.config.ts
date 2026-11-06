@@ -7,6 +7,21 @@ export default defineConfig({
     environment: 'node',
     include: ['src/**/*.spec.ts'],
     root: './',
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'text-summary'],
+      // Cover the code that carries behaviour: services and domain rules.
+      // Framework wiring (modules, entities, DTOs, config, migrations, main) is
+      // either declarative or exercised by the e2e smoke tests, not unit tests.
+      include: ['src/**/*.service.ts', 'src/**/rules/*.ts'],
+      exclude: ['src/**/*.spec.ts'],
+      thresholds: {
+        lines: 80,
+        functions: 80,
+        statements: 80,
+        branches: 75,
+      },
+    },
   },
   plugins: [
     // SWC transforms decorators + emits metadata so Nest DI works under Vitest.
