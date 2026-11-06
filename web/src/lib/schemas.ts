@@ -3,6 +3,14 @@ import { z } from 'zod';
 // Zod schemas mirror the backend DTOs field for field; the client validates
 // before submit and surfaces server field errors after.
 
+/** IP terms are capped by word count so the limit reads naturally to companies. */
+export const IP_TERMS_MAX_WORDS = 500;
+
+export function countWords(text: string): number {
+  const trimmed = text.trim();
+  return trimmed ? trimmed.split(/\s+/).length : 0;
+}
+
 export const loginSchema = z.object({
   email: z.email('Enter a valid email'),
   password: z.string().min(1, 'Password is required'),
@@ -38,7 +46,12 @@ export const projectSchema = z
     applicationDeadline: z.string().min(1, 'Application deadline is required'),
     submissionDeadline: z.string().min(1, 'Submission deadline is required'),
     deliverableFormat: deliverableFormatEnum,
-    ipTerms: z.string().min(1, 'IP terms are required').max(10000),
+    ipTerms: z
+      .string()
+      .min(1, 'IP terms are required')
+      .refine((v) => countWords(v) <= IP_TERMS_MAX_WORDS, {
+        message: `IP terms must be ${IP_TERMS_MAX_WORDS} words or fewer`,
+      }),
     prizeAmount: z
       .number()
       .int()
@@ -46,6 +59,8 @@ export const projectSchema = z
       .max(100_000_000)
       .optional(),
     prizeCurrency: z.string().max(8).optional(),
+    coverImageUrl: z.string().optional(),
+    coverImagePublicId: z.string().optional(),
   })
   .refine(
     (v) =>
