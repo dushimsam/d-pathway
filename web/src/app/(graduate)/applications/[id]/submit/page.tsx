@@ -12,6 +12,7 @@ import { Field } from '@/components/ui/Field';
 import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';
 import { ErrorState, Skeleton } from '@/components/ui/States';
+import { TeamPanel } from '@/components/TeamPanel';
 import { api, ApiError } from '@/lib/api-client';
 import { uploadToCloudinary } from '@/lib/cloudinary';
 import type { Deliverable, MyApplication, SignedUpload } from '@/lib/types';
@@ -109,8 +110,13 @@ export default function SubmitDeliverablePage({
 
   const deadlinePassed =
     new Date(app.project.submissionDeadline).getTime() < Date.now();
+  const isMember = app.role === 'MEMBER';
+  const hasExisting = Boolean(existingQuery.data);
+  // First submission is locked after the deadline; a resubmission is still
+  // allowed (it marks any prior evaluation stale and asks for re-review).
+  const locked = isMember || (deadlinePassed && !hasExisting);
   const canSubmit =
-    !deadlinePassed &&
+    !locked &&
     note.trim().length > 0 &&
     (Boolean(linkUrl.trim()) || Boolean(fileUrl)) &&
     !submit.isPending;
@@ -139,15 +145,27 @@ export default function SubmitDeliverablePage({
           )}
         </div>
 
-        {deadlinePassed ? (
+        {isMember ? (
+          <p className="rounded-[8px] bg-n100 p-3 text-[14px] text-n700">
+            Only the team lead can submit the deliverable. You can follow its
+            status here.
+          </p>
+        ) : locked ? (
           <p className="rounded-[8px] bg-danger-50 p-3 text-[14px] text-danger">
-            The submission deadline has passed. You can no longer submit or change
-            your deliverable.
+            The submission deadline has passed. You can no longer submit a
+            deliverable for this project.
           </p>
         ) : (
           <p className="text-[14px] text-n500">
-            Before the deadline you can replace your submission as many times as
-            you like. Provide a repository link, an uploaded file, or both.
+            You can replace your submission as many times as you like. Provide a
+            repository link, an uploaded file, or both.
+          </p>
+        )}
+
+        {app.evaluation?.stale && (
+          <p className="rounded-[8px] border border-warning-50 bg-warning-50 p-3 text-[14px] text-n700">
+            You resubmitted after your evaluation — the reviewer has been asked to
+            take another look.
           </p>
         )}
 
@@ -159,7 +177,7 @@ export default function SubmitDeliverablePage({
           <Input
             id="linkUrl"
             value={linkUrl}
-            disabled={deadlinePassed}
+            disabled={locked}
             onChange={(e) => setLinkUrl(e.target.value)}
             placeholder="https://"
           />
@@ -172,7 +190,7 @@ export default function SubmitDeliverablePage({
               id="file"
               type="file"
               className="hidden"
-              disabled={deadlinePassed}
+              disabled={locked}
               onChange={(e) => {
                 const f = e.target.files?.[0];
                 if (f) void handleFile(f);
@@ -181,7 +199,7 @@ export default function SubmitDeliverablePage({
             <Button
               variant="secondary"
               size="sm"
-              disabled={deadlinePassed || uploadPct !== null}
+              disabled={locked || uploadPct !== null}
               onClick={() => fileRef.current?.click()}
             >
               <UploadCloud className="h-4 w-4" />
@@ -197,7 +215,7 @@ export default function SubmitDeliverablePage({
           <Textarea
             id="note"
             value={note}
-            disabled={deadlinePassed}
+            disabled={locked}
             onChange={(e) => setNote(e.target.value)}
             placeholder="Anything the reviewer should know…"
           />
@@ -205,16 +223,26 @@ export default function SubmitDeliverablePage({
 
         {error && <p className="text-[14px] text-danger">{error}</p>}
 
-        <div className="flex justify-end">
-          <Button disabled={!canSubmit} onClick={() => submit.mutate()}>
-            {submit.isPending
-              ? 'Submitting…'
-              : submit.isSuccess
-                ? 'Update deliverable'
-                : 'Submit deliverable'}
-          </Button>
-        </div>
+        {!isMember && (
+          <div className="flex justify-end">
+            <Button disabled={!canSubmit} onClick={() => submit.mutate()}>
+              {submit.isPending
+                ? 'Submitting…'
+                : submit.isSuccess
+                  ? 'Update deliverable'
+                  : 'Submit deliverable'}
+            </Button>
+          </div>
+        )}
       </Card>
+
+      <div className="mt-6">
+        <TeamPanel
+          applicationId={id}
+          isLead={!isMember}
+          canInvite={app.status === 'PENDING'}
+        />
+      </div>
     </div>
   );
 }
