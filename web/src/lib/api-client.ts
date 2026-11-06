@@ -54,4 +54,10 @@ export const api = {
       body: body === undefined ? undefined : JSON.stringify(body),
     }).then(parse<T>);
   },
+  del<T>(path: string): Promise<T> {
+    return fetch(`${BASE}${path}`, {
+      method: 'DELETE',
+      credentials: 'same-origin',
+    }).then(parse<T>);
+  },
 };
