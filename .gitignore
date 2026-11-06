@@ -145,3 +145,7 @@ vite.config.ts.timestamp-*
 # Local-only demo/presentation credentials — never commit
 CREDENTIALS.local.md
 *.local.md
+
+references/
+# macOS
+.DS_Store
