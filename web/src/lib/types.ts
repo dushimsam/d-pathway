@@ -48,6 +48,8 @@ export interface Project {
   ipTerms: string;
   prizeAmount: number | null;
   prizeCurrency: string | null;
+  coverImageUrl: string | null;
+  coverImagePublicId: string | null;
   status: ProjectStatus;
   publishedAt: string | null;
   companyId: string;
@@ -72,16 +74,55 @@ export interface Paginated<T> {
   totalPages: number;
 }
 
+export type MembershipStatus = 'INVITED' | 'ACCEPTED' | 'DECLINED';
+export type TeamRole = 'LEAD' | 'MEMBER';
+export type ActivityType = 'DELIVERABLE_SUBMITTED' | 'EVALUATION_RECORDED';
+
 export interface EvaluationSummary {
   score: number;
   outcome: EvaluationOutcome;
   feedback: string;
   evaluatedAt: string;
+  stale?: boolean;
+}
+
+export interface ActivityItem {
+  id: string;
+  type: ActivityType;
+  message: string;
+  projectId: string | null;
+  createdAt: string;
+}
+
+export interface TeamMember {
+  id: string;
+  graduateId: string;
+  fullName: string;
+  status: MembershipStatus;
+  invitedAt: string;
+  respondedAt: string | null;
+}
+
+export interface Team {
+  lead: { graduateId: string; fullName: string };
+  members: TeamMember[];
+}
+
+export interface MyInvitation {
+  id: string;
+  invitedAt: string;
+  application: {
+    id: string;
+    status: ApplicationStatus;
+    leadName: string;
+    project: { id: string; title: string; company: { name: string } };
+  };
 }
 
 export interface MyApplication {
   id: string;
   status: ApplicationStatus;
+  role?: TeamRole;
   note: string | null;
   declineReason: string | null;
   termsAcceptedAt: string;
@@ -93,9 +134,10 @@ export interface MyApplication {
     status: ProjectStatus;
     submissionDeadline: string;
     deliverableFormat: DeliverableFormat;
+    coverImageUrl: string | null;
     company: { id: string; name: string };
   };
-  deliverable: { id: string; submittedAt: string } | null;
+  deliverable: { id: string; submittedAt: string; version?: number } | null;
   evaluation: EvaluationSummary | null;
 }
 
@@ -117,6 +159,7 @@ export interface Deliverable {
   linkUrl: string | null;
   note: string;
   submittedAt: string;
+  version?: number;
   applicationId: string;
   application?: {
     id: string;
@@ -131,6 +174,8 @@ export interface Evaluation {
   feedback: string;
   outcome: EvaluationOutcome;
   evaluatedAt: string;
+  evaluatedVersion?: number;
+  stale?: boolean;
   deliverableId: string;
 }
 
