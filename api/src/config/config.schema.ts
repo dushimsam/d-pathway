@@ -9,6 +9,7 @@ export const configValidationSchema = Joi.object({
   CORS_ORIGIN: Joi.string().required(),
 
   DATABASE_URL: Joi.string().uri({ scheme: ['postgres', 'postgresql'] }).required(),
+  REDIS_URL: Joi.string().uri({ scheme: ['redis', 'rediss'] }).required(),
 
   JWT_SECRET: Joi.string().min(16).required(),
   JWT_EXPIRES_IN: Joi.string().default('24h'),
@@ -16,6 +17,8 @@ export const configValidationSchema = Joi.object({
   CLOUDINARY_CLOUD_NAME: Joi.string().required(),
   CLOUDINARY_API_KEY: Joi.string().required(),
   CLOUDINARY_API_SECRET: Joi.string().required(),
+  // Root Cloudinary folder every upload is nested under (e.g. capstone/deliverables).
+  CLOUDINARY_UPLOAD_FOLDER: Joi.string().default('capstone'),
 })
   // process.env and docker-compose's POSTGRES_* carry many keys we don't model.
   .unknown(true);

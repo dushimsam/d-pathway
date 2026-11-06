@@ -30,6 +30,10 @@ export class AppConfigService {
     return this.get<string>('DATABASE_URL');
   }
 
+  get redisUrl(): string {
+    return this.get<string>('REDIS_URL');
+  }
+
   get jwtSecret(): string {
     return this.get<string>('JWT_SECRET');
   }
@@ -38,11 +42,17 @@ export class AppConfigService {
     return this.get<string>('JWT_EXPIRES_IN');
   }
 
-  get cloudinary(): { cloudName: string; apiKey: string; apiSecret: string } {
+  get cloudinary(): {
+    cloudName: string;
+    apiKey: string;
+    apiSecret: string;
+    uploadFolder: string;
+  } {
     return {
       cloudName: this.get<string>('CLOUDINARY_CLOUD_NAME'),
       apiKey: this.get<string>('CLOUDINARY_API_KEY'),
       apiSecret: this.get<string>('CLOUDINARY_API_SECRET'),
+      uploadFolder: this.get<string>('CLOUDINARY_UPLOAD_FOLDER'),
     };
   }
 }
