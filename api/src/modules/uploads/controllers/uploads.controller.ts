@@ -7,7 +7,7 @@ import { SignUploadDto } from '../dto/sign-upload.dto.js';
 
 @ApiTags('uploads')
 @ApiBearerAuth()
-@Roles(UserRole.GRADUATE)
+@Roles(UserRole.GRADUATE, UserRole.COMPANY)
 @Controller('uploads')
 export class UploadsController {
   constructor(private readonly uploads: UploadsService) {}

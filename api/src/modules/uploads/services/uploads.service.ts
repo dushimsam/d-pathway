@@ -17,15 +17,19 @@ export class UploadsService {
   /**
    * Produce signed parameters for a direct browser → Cloudinary upload. The API
    * never receives the file bytes; only the resulting URL and public id return
-   * to us (on the deliverable).
+   * to us (on the deliverable). Every upload is nested under the configured root
+   * folder (e.g. "capstone"), so the signed folder is `capstone/deliverables`.
    */
   sign(folder: string): SignedUploadParams {
-    const { cloudName, apiKey, apiSecret } = this.config.cloudinary;
+    const { cloudName, apiKey, apiSecret, uploadFolder } =
+      this.config.cloudinary;
+    const fullFolder = `${uploadFolder}/${folder}`;
     const timestamp = Math.round(Date.now() / 1000);
+    // The signature must cover the exact folder the browser will send back.
     const signature = cloudinary.utils.api_sign_request(
-      { timestamp, folder },
+      { timestamp, folder: fullFolder },
       apiSecret,
     );
-    return { timestamp, signature, apiKey, cloudName, folder };
+    return { timestamp, signature, apiKey, cloudName, folder: fullFolder };
   }
 }
