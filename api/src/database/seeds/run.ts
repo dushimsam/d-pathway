@@ -32,6 +32,7 @@ interface ProjectDef {
   applyIn: number;
   submitIn: number;
   prizeAmount?: number;
+  cover?: string;
   status: ProjectStatus;
 }
 
@@ -41,6 +42,7 @@ interface OrgDef {
   email: string;
   title: string;
   description: string;
+  cover: string;
   projects: ProjectDef[];
 }
 
@@ -51,6 +53,7 @@ const ORGS: OrgDef[] = [
     email: 'cto@strettch.com',
     title: 'CTO',
     description: 'A Kigali cloud infrastructure company, first partner on the D-Pathway pilot.',
+    cover: '/images/real/work-cloud.jpg',
     projects: [
       {
         title: 'Internal metrics dashboard',
@@ -65,6 +68,7 @@ const ORGS: OrgDef[] = [
       },
       {
         title: 'Data cleanup script',
+        cover: '/images/real/hardware-metrics.jpg',
         brief:
           'A CSV export from a legacy system needs normalising before import. Write a well-tested script that validates and transforms it, with clear error reporting.',
         requiredSkills: ['python', 'data'],
@@ -75,6 +79,7 @@ const ORGS: OrgDef[] = [
       },
       {
         title: 'Draft: billing export idea',
+        cover: '/images/real/developer-screen.jpg',
         brief: 'A rough idea we are still scoping.',
         requiredSkills: ['typescript'],
         format: DeliverableFormat.LINK,
@@ -91,6 +96,7 @@ const ORGS: OrgDef[] = [
     title: 'Cooperative Coordinator',
     description:
       'A cooperative of 24 tailors in Nyarugenge sharing one workshop and a growing customer list.',
+    cover: '/images/real/work-tailors.jpg',
     projects: [
       {
         title: 'Simple order & inventory tracker',
@@ -105,6 +111,7 @@ const ORGS: OrgDef[] = [
       },
       {
         title: 'Logo and brand kit',
+        cover: '/images/real/work-fashion.jpg',
         brief:
           'We want one clean logo, two colours, and a WhatsApp profile picture we can reuse. Deliver the files plus a one-page guide on how to use them.',
         requiredSkills: ['design', 'branding'],
@@ -115,6 +122,7 @@ const ORGS: OrgDef[] = [
       },
       {
         title: 'Draft: online lookbook',
+        cover: '/images/real/work-lookbook.jpg',
         brief: 'Idea: a small gallery of our best pieces. Still deciding.',
         requiredSkills: ['web', 'design'],
         format: DeliverableFormat.LINK,
@@ -131,9 +139,11 @@ const ORGS: OrgDef[] = [
     title: 'Secretary',
     description:
       'A cooperative of smallholder vegetable farmers in Gasabo selling to Kigali markets.',
+    cover: '/images/real/work-agritech.jpg',
     projects: [
       {
         title: 'WhatsApp produce order form',
+        cover: '/images/real/work-market.jpg',
         brief:
           'Restaurants message us on WhatsApp and orders get mixed up. Build a simple online form that collects what they want and when, and shows us a clean daily list. Keep it very easy to use.',
         requiredSkills: ['web', 'forms'],
@@ -162,9 +172,11 @@ const ORGS: OrgDef[] = [
     title: 'Program Lead',
     description:
       'A volunteer youth group in Nyamirambo running community events and a small social-media page.',
+    cover: '/images/real/work-mobile.jpg',
     projects: [
       {
         title: 'Community events landing page',
+        cover: '/images/real/work-events.jpg',
         brief:
           'Build us a one-page website that lists our upcoming events with a photo, date and a "get directions" link. Should look good on a phone and be easy for us to update.',
         requiredSkills: ['html', 'css', 'design'],
@@ -234,6 +246,8 @@ async function run(): Promise<void> {
             ipTerms: IP,
             prizeAmount: p.prizeAmount ?? null,
             prizeCurrency: p.prizeAmount != null ? 'RWF' : null,
+            coverImageUrl: p.cover ?? org.cover,
+            coverImagePublicId: null,
             status: p.status,
             publishedAt: p.status === ProjectStatus.DRAFT ? null : new Date(),
           }),
