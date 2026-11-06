@@ -2,12 +2,13 @@
 
 import Link from 'next/link';
 import { useQuery } from '@tanstack/react-query';
-import { PartyPopper, Star } from 'lucide-react';
+import { PartyPopper } from 'lucide-react';
 import { PageHeader } from '@/components/PageHeader';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
-import { StatusPill } from '@/components/ui/StatusPill';
-import { EmptyState, ErrorState, Skeleton } from '@/components/ui/States';
+import { ErrorState, Skeleton } from '@/components/ui/States';
+import { ActivityFeed } from '@/components/ActivityFeed';
+import { InvitationsInbox } from '@/components/InvitationsInbox';
 import { api } from '@/lib/api-client';
 import type { GraduateDashboard } from '@/lib/types';
 
@@ -41,6 +42,8 @@ export default function GraduateDashboardPage() {
         }
       />
 
+      <InvitationsInbox />
+
       {data.invitations.length > 0 && (
         <Card className="mb-6 flex items-start gap-3 border border-success-50 bg-success-50">
           <PartyPopper className="mt-0.5 h-5 w-5 text-success" />
@@ -59,9 +62,12 @@ export default function GraduateDashboardPage() {
         </Card>
       )}
 
-      <div className="mb-6 grid grid-cols-3 gap-4">
+      <Link href="/applications" className="mb-6 grid grid-cols-3 gap-4">
         {(['PENDING', 'ACCEPTED', 'DECLINED'] as const).map((s) => (
-          <Card key={s} className="text-center">
+          <Card
+            key={s}
+            className="text-center transition-colors hover:border-primary"
+          >
             <p className="text-[24px] font-semibold text-n900">
               {data.applicationsByStatus[s] ?? 0}
             </p>
@@ -70,70 +76,27 @@ export default function GraduateDashboardPage() {
             </p>
           </Card>
         ))}
+      </Link>
+
+      <div className="mb-8 flex items-center justify-between">
+        <div>
+          <h2 className="text-[16px] font-semibold text-n900">Your applications</h2>
+          <p className="text-[13px] text-n500">
+            {data.applications.length === 0
+              ? 'You have not applied to any projects yet.'
+              : `You've applied to ${data.applications.length} project${
+                  data.applications.length > 1 ? 's' : ''
+                }.`}
+          </p>
+        </div>
+        <Link href={data.applications.length === 0 ? '/catalogue' : '/applications'}>
+          <Button variant="secondary" size="sm">
+            {data.applications.length === 0 ? 'Browse catalogue' : 'View applications'}
+          </Button>
+        </Link>
       </div>
 
-      <h2 className="mb-3 text-[16px] font-semibold text-n900">Applications</h2>
-      {data.applications.length === 0 ? (
-        <EmptyState
-          title="No applications yet"
-          description="Find a project in the catalogue and apply."
-          action={
-            <Link href="/catalogue">
-              <Button size="sm">Browse catalogue</Button>
-            </Link>
-          }
-        />
-      ) : (
-        <div className="flex flex-col gap-3">
-          {data.applications.map((a) => (
-            <Card key={a.id} className="flex flex-col gap-3">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <p className="text-[18px] font-semibold text-n900">
-                    {a.project.title}
-                  </p>
-                  <p className="text-[14px] text-n500">{a.project.company.name}</p>
-                </div>
-                <StatusPill status={a.status} />
-              </div>
-
-              {a.status === 'DECLINED' && a.declineReason && (
-                <p className="rounded-[8px] bg-danger-50 p-3 text-[14px] text-danger">
-                  <span className="font-medium">Reason:</span> {a.declineReason}
-                </p>
-              )}
-
-              {a.status === 'ACCEPTED' && !a.evaluation && (
-                <div className="flex items-center justify-between rounded-[8px] bg-primary-50 p-3">
-                  <span className="text-[14px] text-primary-dark">
-                    {a.deliverable
-                      ? 'Deliverable submitted. You can still update it before the deadline.'
-                      : 'You were accepted — submit your deliverable before the deadline.'}
-                  </span>
-                  <Link href={`/applications/${a.id}/submit`}>
-                    <Button size="sm">
-                      {a.deliverable ? 'Update deliverable' : 'Submit deliverable'}
-                    </Button>
-                  </Link>
-                </div>
-              )}
-
-              {a.evaluation && (
-                <div className="rounded-[8px] border border-n100 p-3">
-                  <div className="mb-1 flex items-center gap-2">
-                    <span className="flex items-center gap-1 text-[14px] font-medium text-n900">
-                      <Star className="h-4 w-4 fill-warning text-warning" />
-                      {a.evaluation.score}/5
-                    </span>
-                    <StatusPill status={a.evaluation.outcome} />
-                  </div>
-                  <p className="text-[14px] text-n700">{a.evaluation.feedback}</p>
-                </div>
-              )}
-            </Card>
-          ))}
-        </div>
-      )}
+      <ActivityFeed />
     </div>
   );
 }
