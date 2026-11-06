@@ -3,7 +3,11 @@ import { BaseEntity } from '../../../common/entities/base.entity.js';
 import { EvaluationOutcome } from '../../../common/enums/index.js';
 import { Deliverable } from '../../deliverables/entities/deliverable.entity.js';
 
-/** The single, immutable judgement of a deliverable. Inserted once, never updated. */
+/**
+ * The company's judgement of a deliverable. One row per deliverable; the company
+ * may edit it. When the graduate resubmits after an evaluation, `stale` is set so
+ * the company knows the verdict no longer reflects the latest work.
+ */
 @Entity('evaluations')
 @Check('ck_evaluation_score_range', '"score" BETWEEN 1 AND 5')
 export class Evaluation extends BaseEntity {
@@ -18,6 +22,14 @@ export class Evaluation extends BaseEntity {
 
   @Column({ type: 'timestamptz' })
   evaluatedAt!: Date;
+
+  /** The deliverable version this verdict was made against. */
+  @Column({ type: 'int', default: 1 })
+  evaluatedVersion!: number;
+
+  /** True when the graduate resubmitted after this evaluation was recorded. */
+  @Column({ type: 'boolean', default: false })
+  stale!: boolean;
 
   @Index({ unique: true })
   @Column({ type: 'uuid' })
