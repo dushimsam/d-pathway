@@ -4,6 +4,7 @@ import { LoggerModule } from 'nestjs-pino';
 import { AppConfigModule } from './config/config.module.js';
 import { AppConfigService } from './config/app-config.service.js';
 import { DatabaseModule } from './database/database.module.js';
+import { RedisModule } from './redis/redis.module.js';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter.js';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard.js';
 import { RolesGuard } from './common/guards/roles.guard.js';
@@ -18,6 +19,7 @@ import { DeliverablesModule } from './modules/deliverables/deliverables.module.j
 import { EvaluationsModule } from './modules/evaluations/evaluations.module.js';
 import { UploadsModule } from './modules/uploads/uploads.module.js';
 import { DashboardsModule } from './modules/dashboards/dashboards.module.js';
+import { ActivityModule } from './modules/activity/activity.module.js';
 
 @Module({
   imports: [
@@ -34,6 +36,7 @@ import { DashboardsModule } from './modules/dashboards/dashboards.module.js';
       }),
     }),
     DatabaseModule,
+    RedisModule,
     HealthModule,
     AuthModule,
     GraduatesModule,
@@ -45,6 +48,7 @@ import { DashboardsModule } from './modules/dashboards/dashboards.module.js';
     EvaluationsModule,
     UploadsModule,
     DashboardsModule,
+    ActivityModule,
   ],
   providers: [
     { provide: APP_FILTER, useClass: HttpExceptionFilter },
