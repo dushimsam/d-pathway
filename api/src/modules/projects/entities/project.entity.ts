@@ -37,6 +37,13 @@ export class Project extends BaseEntity {
   @Column({ type: 'varchar', length: 8, nullable: true, default: 'RWF' })
   prizeCurrency!: string | null;
 
+  // Optional cover photo shown in the catalogue and on the project page.
+  @Column({ type: 'varchar', nullable: true })
+  coverImageUrl!: string | null;
+
+  @Column({ type: 'varchar', nullable: true })
+  coverImagePublicId!: string | null;
+
   @Index()
   @Column({ type: 'enum', enum: ProjectStatus, default: ProjectStatus.DRAFT })
   status!: ProjectStatus;
