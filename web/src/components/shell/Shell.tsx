@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import Link from 'next/link';
 import { NavItem } from './NavItem';
 import { LogoutButton } from './LogoutButton';
 
@@ -22,7 +23,13 @@ export function Shell({
     <div className="flex min-h-screen bg-n100">
       <aside className="flex w-60 shrink-0 flex-col border-r border-n300 bg-n0 px-4 py-6">
         <div className="mb-8 px-3">
-          <span className="text-[18px] font-bold text-primary-dark">D·Pathway</span>
+          <Link
+            href="/"
+            className="text-[18px] font-bold text-primary-dark transition-opacity hover:opacity-80"
+            aria-label="D·Pathway home"
+          >
+            D·Pathway
+          </Link>
           <p className="mt-0.5 text-[12px] text-n500">{roleLabel}</p>
         </div>
         <nav className="flex flex-col gap-1">
