@@ -12,6 +12,7 @@ function requiredRole(pathname: string): Role | null {
   if (/^\/projects\/[^/]+\/applications$/.test(pathname)) return 'COMPANY';
   if (/^\/projects\/[^/]+$/.test(pathname)) return 'GRADUATE';
   if (pathname === '/catalogue' || pathname === '/dashboard') return 'GRADUATE';
+  if (pathname === '/applications') return 'GRADUATE';
   if (/^\/applications\/[^/]+\/submit$/.test(pathname)) return 'GRADUATE';
   return null;
 }
