@@ -7,12 +7,17 @@ import {
   IsInt,
   IsOptional,
   IsString,
+  IsUrl,
   Max,
   MaxLength,
   Min,
   MinLength,
 } from 'class-validator';
 import { DeliverableFormat } from '../../../common/enums/index.js';
+import { MaxWords } from '../../../common/validators/max-words.validator.js';
+
+/** IP terms cap, kept in step with the web schema (schemas.ts). */
+export const IP_TERMS_MAX_WORDS = 500;
 
 export class CreateProjectDto {
   @ApiProperty()
@@ -45,10 +50,12 @@ export class CreateProjectDto {
   @IsEnum(DeliverableFormat)
   deliverableFormat!: DeliverableFormat;
 
-  @ApiProperty()
+  @ApiProperty({ description: `Up to ${IP_TERMS_MAX_WORDS} words.` })
   @IsString()
   @MinLength(1)
-  @MaxLength(10000)
+  // Generous character ceiling as an abuse guard; the word cap is the real limit.
+  @MaxLength(20000)
+  @MaxWords(IP_TERMS_MAX_WORDS)
   ipTerms!: string;
 
   @ApiPropertyOptional({ description: 'Optional cash prize amount; omit for no prize.' })
@@ -63,4 +70,15 @@ export class CreateProjectDto {
   @IsString()
   @MaxLength(8)
   prizeCurrency?: string;
+
+  @ApiPropertyOptional({ description: 'Cover photo URL (Cloudinary or hosted).' })
+  @IsOptional()
+  @IsUrl({ require_tld: false })
+  coverImageUrl?: string;
+
+  @ApiPropertyOptional({ description: 'Cover photo Cloudinary public id.' })
+  @IsOptional()
+  @IsString()
+  @MaxLength(255)
+  coverImagePublicId?: string;
 }
