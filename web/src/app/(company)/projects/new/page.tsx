@@ -1,22 +1,25 @@
 'use client';
 
-import { Suspense, useEffect, useState } from 'react';
+import { Suspense, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Check } from 'lucide-react';
+import { Check, ImageIcon, UploadCloud, X } from 'lucide-react';
 import { PageHeader } from '@/components/PageHeader';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Field } from '@/components/ui/Field';
 import { Input } from '@/components/ui/Input';
+import { TagInput } from '@/components/ui/TagInput';
 import { Textarea } from '@/components/ui/Textarea';
 import { Select } from '@/components/ui/Select';
 import { Badge } from '@/components/ui/Badge';
 import { Skeleton } from '@/components/ui/States';
 import { api, ApiError } from '@/lib/api-client';
-import { projectSchema } from '@/lib/schemas';
-import type { Project } from '@/lib/types';
+import { uploadToCloudinary } from '@/lib/cloudinary';
+import { projectSchema, countWords, IP_TERMS_MAX_WORDS } from '@/lib/schemas';
+import { cn } from '@/lib/cn';
+import type { Project, SignedUpload } from '@/lib/types';
 
 const STATUSES = ['DRAFT', 'OPEN', 'IN_PROGRESS', 'CLOSED'] as const;
 
@@ -36,13 +39,17 @@ function ProjectBuilder() {
   const [status, setStatus] = useState<string>('DRAFT');
   const [title, setTitle] = useState('');
   const [brief, setBrief] = useState('');
-  const [skillsText, setSkillsText] = useState('');
+  const [skills, setSkills] = useState<string[]>([]);
   const [applicationDeadline, setApplicationDeadline] = useState('');
   const [submissionDeadline, setSubmissionDeadline] = useState('');
   const [deliverableFormat, setDeliverableFormat] = useState('REPOSITORY_LINK');
   const [ipTerms, setIpTerms] = useState('');
   const [prizeAmount, setPrizeAmount] = useState('');
   const [prizeCurrency, setPrizeCurrency] = useState('RWF');
+  const [coverImageUrl, setCoverImageUrl] = useState<string | null>(null);
+  const [coverImagePublicId, setCoverImagePublicId] = useState<string | null>(null);
+  const [coverPct, setCoverPct] = useState<number | null>(null);
+  const coverRef = useRef<HTMLInputElement>(null);
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [formError, setFormError] = useState<string | null>(null);
@@ -61,26 +68,43 @@ function ProjectBuilder() {
     setStatus(p.status);
     setTitle(p.title);
     setBrief(p.brief);
-    setSkillsText(p.requiredSkills.join(', '));
+    setSkills(p.requiredSkills);
     setApplicationDeadline(isoToLocalInput(p.applicationDeadline));
     setSubmissionDeadline(isoToLocalInput(p.submissionDeadline));
     setDeliverableFormat(p.deliverableFormat);
     setIpTerms(p.ipTerms);
     setPrizeAmount(p.prizeAmount != null ? String(p.prizeAmount) : '');
     setPrizeCurrency(p.prizeCurrency ?? 'RWF');
+    setCoverImageUrl(p.coverImageUrl);
+    setCoverImagePublicId(p.coverImagePublicId);
   }, [existing.data]);
 
+  async function handleCoverFile(file: File) {
+    setFormError(null);
+    setCoverPct(0);
+    try {
+      const signed = await api.post<SignedUpload>('/uploads/sign', {
+        folder: 'project-covers',
+      });
+      const result = await uploadToCloudinary(file, signed, setCoverPct);
+      setCoverImageUrl(result.secureUrl);
+      setCoverImagePublicId(result.publicId);
+    } catch {
+      setFormError('Cover upload failed. Please try again.');
+    } finally {
+      setCoverPct(null);
+    }
+  }
+
   const locked = status !== 'DRAFT';
+  const ipTermsWords = countWords(ipTerms);
 
   function collect() {
     const trimmedPrize = prizeAmount.trim();
     return {
       title,
       brief,
-      requiredSkills: skillsText
-        .split(',')
-        .map((s) => s.trim())
-        .filter(Boolean),
+      requiredSkills: skills,
       applicationDeadline,
       submissionDeadline,
       deliverableFormat: deliverableFormat as
@@ -88,6 +112,9 @@ function ProjectBuilder() {
         | 'FILE'
         | 'LINK',
       ipTerms,
+      ...(coverImageUrl
+        ? { coverImageUrl, coverImagePublicId: coverImagePublicId ?? undefined }
+        : {}),
       ...(trimmedPrize
         ? { prizeAmount: Number(trimmedPrize), prizeCurrency }
         : {}),
@@ -159,7 +186,7 @@ function ProjectBuilder() {
   const checklist = [
     { ok: brief.trim().length > 0, label: 'A non-empty brief' },
     {
-      ok: skillsText.split(',').some((s) => s.trim()),
+      ok: skills.length > 0,
       label: 'At least one required skill',
     },
     {
@@ -202,6 +229,70 @@ function ProjectBuilder() {
         )}
 
         <Card className="flex flex-col gap-4">
+          <Field label="Cover photo" htmlFor="cover" hint="Shown in the catalogue. Uploaded to Cloudinary.">
+            <input
+              ref={coverRef}
+              id="cover"
+              type="file"
+              accept="image/*"
+              className="hidden"
+              disabled={locked}
+              onChange={(e) => {
+                const f = e.target.files?.[0];
+                if (f) void handleCoverFile(f);
+              }}
+            />
+            {coverImageUrl ? (
+              <div className="relative overflow-hidden rounded-[12px] border border-white/10">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={coverImageUrl}
+                  alt="Project cover"
+                  className="h-40 w-full object-cover"
+                />
+                {!locked && (
+                  <div className="absolute right-2 top-2 flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => coverRef.current?.click()}
+                      className="rounded-full bg-black/60 px-3 py-1 text-[12px] text-white backdrop-blur hover:bg-black/80"
+                    >
+                      Replace
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setCoverImageUrl(null);
+                        setCoverImagePublicId(null);
+                      }}
+                      className="flex h-7 w-7 items-center justify-center rounded-full bg-black/60 text-white backdrop-blur hover:bg-black/80"
+                      aria-label="Remove cover"
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <button
+                type="button"
+                disabled={locked || coverPct !== null}
+                onClick={() => coverRef.current?.click()}
+                className="flex h-40 w-full flex-col items-center justify-center gap-2 rounded-[12px] border border-dashed border-n300 bg-white/[0.02] text-n500 transition-colors hover:border-primary hover:text-n700 disabled:opacity-60"
+              >
+                {coverPct !== null ? (
+                  <span className="flex items-center gap-2 text-[14px]">
+                    <UploadCloud className="h-5 w-5" /> Uploading {coverPct}%
+                  </span>
+                ) : (
+                  <>
+                    <ImageIcon className="h-7 w-7" />
+                    <span className="text-[14px]">Add a cover photo</span>
+                  </>
+                )}
+              </button>
+            )}
+          </Field>
           <Field label="Title" htmlFor="title" error={errors.title}>
             <Input
               id="title"
@@ -219,12 +310,13 @@ function ProjectBuilder() {
               onChange={(e) => setBrief(e.target.value)}
             />
           </Field>
-          <Field label="Required skills" htmlFor="skills" error={errors.requiredSkills} hint="Comma-separated, e.g. typescript, react">
-            <Input
+          <Field label="Required skills" htmlFor="skills" error={errors.requiredSkills} hint="Type a skill and press Enter to add it, e.g. Software Engineering">
+            <TagInput
               id="skills"
-              value={skillsText}
+              value={skills}
               disabled={locked}
-              onChange={(e) => setSkillsText(e.target.value)}
+              onChange={setSkills}
+              placeholder="Type a skill and press Enter…"
             />
           </Field>
           <div className="grid grid-cols-2 gap-4">
@@ -295,6 +387,14 @@ function ProjectBuilder() {
               disabled={locked}
               onChange={(e) => setIpTerms(e.target.value)}
             />
+            <p
+              className={cn(
+                'mt-1 text-right text-[12px]',
+                ipTermsWords > IP_TERMS_MAX_WORDS ? 'text-danger' : 'text-n500',
+              )}
+            >
+              {ipTermsWords} / {IP_TERMS_MAX_WORDS} words
+            </p>
           </Field>
 
           {formError && <p className="text-[14px] text-danger">{formError}</p>}
