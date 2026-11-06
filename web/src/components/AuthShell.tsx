@@ -19,7 +19,7 @@ export function AuthShell({
       <aside className="relative hidden w-[46%] overflow-hidden border-r border-white/5 lg:flex lg:flex-col lg:justify-between lg:p-12">
         <div
           className="pointer-events-none absolute -left-20 -top-24 h-[480px] w-[480px] rounded-full opacity-60 blur-[120px]"
-          style={{ background: 'radial-gradient(closest-side, rgba(46,230,200,0.20), transparent)' }}
+          style={{ background: 'radial-gradient(closest-side, rgba(59,91,253,0.22), transparent)' }}
         />
         <Link href="/" className="relative font-display text-[22px] font-bold tracking-tight">
           D<span className="text-teal">·</span>Pathway

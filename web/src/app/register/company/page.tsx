@@ -72,7 +72,11 @@ export default function RegisterCompanyPage() {
           <Input id="password" type="password" autoComplete="new-password" {...register('password')} />
         </Field>
         {formError && <p className="text-[14px] text-danger">{formError}</p>}
-        <Button type="submit" disabled={isSubmitting}>
+        <Button
+          type="submit"
+          disabled={isSubmitting}
+          className="bg-[#3b5bfd] text-white hover:bg-[#2847d3]"
+        >
           {isSubmitting ? 'Creating account…' : 'Create account'}
         </Button>
       </form>

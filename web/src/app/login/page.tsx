@@ -75,7 +75,11 @@ function LoginForm() {
           />
         </Field>
         {formError && <p className="text-[14px] text-danger">{formError}</p>}
-        <Button type="submit" disabled={isSubmitting}>
+        <Button
+          type="submit"
+          disabled={isSubmitting}
+          className="bg-[#3b5bfd] text-white hover:bg-[#2847d3]"
+        >
           {isSubmitting ? 'Signing in…' : 'Sign in'}
         </Button>
       </form>
