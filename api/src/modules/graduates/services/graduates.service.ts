@@ -45,6 +45,18 @@ export class GraduatesService {
     return this.graduates.findOne({ where: { userId } });
   }
 
+  async findById(id: string): Promise<Graduate | null> {
+    return this.graduates.findOne({ where: { id } });
+  }
+
+  /** Look up a graduate by their account email (used to invite teammates). */
+  async findByEmail(email: string): Promise<Graduate | null> {
+    return this.graduates.findOne({
+      where: { user: { email: email.trim().toLowerCase() } },
+      relations: { user: true },
+    });
+  }
+
   async getByUserIdOrThrow(userId: string): Promise<Graduate> {
     const graduate = await this.findByUserId(userId);
     if (!graduate) throw new NotFoundException('Graduate profile not found.');
