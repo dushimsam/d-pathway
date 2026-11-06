@@ -14,6 +14,7 @@ import { PrizeBadge } from '@/components/ui/PrizeBadge';
 import { EmptyState, ErrorState, Skeleton } from '@/components/ui/States';
 import { cn } from '@/lib/cn';
 import { api } from '@/lib/api-client';
+import { useMyApplications } from '@/lib/useMyApplications';
 import type { CatalogueCompany, Paginated, Project } from '@/lib/types';
 
 interface Filters {
@@ -43,6 +44,12 @@ export default function CataloguePage() {
       api.get<Paginated<Project>>(`/catalogue/projects${qs ? `?${qs}` : ''}`),
   });
 
+  const mine = useMyApplications();
+  // The catalogue is for discovery — projects you've already applied to move to
+  // the Applications tab, so hide them here.
+  const allItems = projectsQuery.data?.items ?? [];
+  const visibleItems = allItems.filter((p) => !mine.byProjectId.has(p.id));
+  const appliedHidden = allItems.length - visibleItems.length;
   const hasFilters = Boolean(filters.companyId || filters.skill || filters.hasPrize);
 
   return (
@@ -136,22 +143,49 @@ export default function CataloguePage() {
         />
       )}
 
-      {projectsQuery.data && projectsQuery.data.items.length === 0 && (
+      {projectsQuery.data && visibleItems.length === 0 && (
         <EmptyState
-          title="No projects match"
-          description="Try clearing the filters or checking back soon."
+          title={appliedHidden > 0 ? 'Nothing new to browse' : 'No projects match'}
+          description={
+            appliedHidden > 0
+              ? "You've applied to every open project here. Track them under Applications."
+              : 'Try clearing the filters or checking back soon.'
+          }
+          action={
+            appliedHidden > 0 ? (
+              <Link href="/applications">
+                <Button size="sm">View applications</Button>
+              </Link>
+            ) : undefined
+          }
         />
       )}
 
-      {projectsQuery.data && projectsQuery.data.items.length > 0 && (
+      {visibleItems.length > 0 && (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {projectsQuery.data.items.map((p) => (
-            <Card key={p.id} className="flex flex-col gap-3">
+          {visibleItems.map((p) => (
+            <Card key={p.id} className="flex flex-col gap-3 overflow-hidden">
+              {p.coverImageUrl && (
+                <div className="relative -mx-6 -mt-6 mb-1 h-40 overflow-hidden">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={p.coverImageUrl}
+                    alt=""
+                    loading="lazy"
+                    className="h-full w-full object-cover"
+                  />
+                  {p.prizeAmount != null && (
+                    <div className="absolute left-3 top-3">
+                      <PrizeBadge amount={p.prizeAmount} currency={p.prizeCurrency} size="sm" />
+                    </div>
+                  )}
+                </div>
+              )}
               <div className="flex items-center justify-between">
                 <span className="text-[12px] font-medium uppercase tracking-wide text-n500">
                   {p.company?.name ?? 'Organisation'}
                 </span>
-                {p.prizeAmount != null ? (
+                {p.prizeAmount != null && !p.coverImageUrl ? (
                   <PrizeBadge amount={p.prizeAmount} currency={p.prizeCurrency} size="sm" />
                 ) : (
                   <StatusPill status={p.status} />
@@ -166,10 +200,12 @@ export default function CataloguePage() {
                   </Badge>
                 ))}
               </div>
-              <div className="mt-auto flex items-center justify-between pt-2">
+              <div className="mt-auto flex items-center justify-between gap-2 pt-2">
                 <DeadlineChip iso={p.applicationDeadline} label="Apply by" />
-                <Link href={`/projects/${p.id}`}>
-                  <Button size="sm">View brief and terms</Button>
+                <Link href={`/projects/${p.id}`} className="shrink-0">
+                  <Button size="sm" className="whitespace-nowrap">
+                    View brief
+                  </Button>
                 </Link>
               </div>
             </Card>

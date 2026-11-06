@@ -3,17 +3,19 @@
 import { use, useState } from 'react';
 import Link from 'next/link';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { CheckCircle2 } from 'lucide-react';
+import { CheckCircle2, Clock, Lock, Users } from 'lucide-react';
 import { PageHeader } from '@/components/PageHeader';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { DeadlineChip } from '@/components/ui/DeadlineChip';
 import { PrizeBadge } from '@/components/ui/PrizeBadge';
+import { StatusPill } from '@/components/ui/StatusPill';
 import { Field } from '@/components/ui/Field';
 import { Textarea } from '@/components/ui/Textarea';
 import { ErrorState, Skeleton } from '@/components/ui/States';
 import { api, ApiError } from '@/lib/api-client';
+import { useMyApplications } from '@/lib/useMyApplications';
 import type { Project } from '@/lib/types';
 
 export default function ProjectPage({
@@ -32,6 +34,10 @@ export default function ProjectPage({
     queryFn: () => api.get<Project>(`/projects/${id}`),
   });
 
+  // Know up-front whether the student already applied, so the panel reflects it
+  // instead of offering an Apply button that the backend would reject.
+  const mine = useMyApplications();
+
   const applyMutation = useMutation({
     mutationFn: () =>
       api.post(`/projects/${id}/apply`, {
@@ -48,7 +54,7 @@ export default function ProjectPage({
       ),
   });
 
-  if (projectQuery.isLoading) {
+  if (projectQuery.isLoading || mine.isLoading) {
     return (
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_320px]">
         <Skeleton className="h-96" />
@@ -66,7 +72,20 @@ export default function ProjectPage({
   }
 
   const p = projectQuery.data;
-  const applied = applyMutation.isSuccess;
+  const existing = mine.byProjectId.get(id);
+  const applied = applyMutation.isSuccess || Boolean(existing);
+  const deadlinePassed =
+    new Date(p.applicationDeadline).getTime() < Date.now();
+  // The project is only open to new applications while OPEN and before the
+  // deadline. Anything else, show why rather than a dead Apply button.
+  const closedReason =
+    p.status !== 'OPEN'
+      ? p.status === 'DRAFT'
+        ? 'This project is not open for applications yet.'
+        : 'This project is no longer accepting applications.'
+      : deadlinePassed
+        ? 'The application deadline has passed.'
+        : null;
 
   return (
     <div>
@@ -81,6 +100,17 @@ export default function ProjectPage({
           </Link>
         }
       />
+
+      {p.coverImageUrl && (
+        <div className="mb-6 h-56 overflow-hidden rounded-[16px] border border-white/10 sm:h-72">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={p.coverImageUrl}
+            alt={`${p.title} cover`}
+            className="h-full w-full object-cover"
+          />
+        </div>
+      )}
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_320px]">
         <div className="flex flex-col gap-6">
@@ -125,7 +155,43 @@ export default function ProjectPage({
 
         <aside>
           <Card className="sticky top-8 flex flex-col gap-4">
-            {applied ? (
+            {existing ? (
+              // Already applied (as lead or as an invited teammate).
+              <div className="flex flex-col gap-3">
+                <div className="flex items-center gap-2">
+                  {existing.role === 'MEMBER' ? (
+                    <Users className="h-5 w-5 text-primary" />
+                  ) : (
+                    <CheckCircle2 className="h-5 w-5 text-success" />
+                  )}
+                  <p className="text-[16px] font-medium text-n900">
+                    {existing.role === 'MEMBER'
+                      ? "You're on a team for this project"
+                      : "You've applied to this project"}
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[13px] text-n500">Status</span>
+                  <StatusPill status={existing.status} />
+                </div>
+                {existing.status === 'ACCEPTED' && (
+                  <Link href={`/applications/${existing.id}/submit`} className="w-full">
+                    <Button className="w-full">
+                      {existing.role === 'MEMBER'
+                        ? 'View team & deliverable'
+                        : existing.deliverable
+                          ? 'Update deliverable'
+                          : 'Submit deliverable'}
+                    </Button>
+                  </Link>
+                )}
+                <Link href="/dashboard" className="w-full">
+                  <Button variant="secondary" className="w-full">
+                    Go to dashboard
+                  </Button>
+                </Link>
+              </div>
+            ) : applied ? (
               <div className="flex flex-col items-center gap-3 py-4 text-center">
                 <CheckCircle2 className="h-10 w-10 text-success" />
                 <p className="text-[16px] font-medium text-n900">Application submitted</p>
@@ -136,9 +202,28 @@ export default function ProjectPage({
                   <Button className="w-full">Go to dashboard</Button>
                 </Link>
               </div>
+            ) : closedReason ? (
+              <div className="flex flex-col items-center gap-3 py-4 text-center">
+                {deadlinePassed ? (
+                  <Clock className="h-9 w-9 text-n500" />
+                ) : (
+                  <Lock className="h-9 w-9 text-n500" />
+                )}
+                <p className="text-[15px] font-medium text-n900">Applications closed</p>
+                <p className="text-[14px] text-n500">{closedReason}</p>
+                <Link href="/catalogue" className="w-full">
+                  <Button variant="secondary" className="w-full">
+                    Browse other projects
+                  </Button>
+                </Link>
+              </div>
             ) : (
               <>
                 <h2 className="text-[16px] font-semibold text-n900">Apply</h2>
+                <p className="text-[13px] text-n500">
+                  Apply solo, or apply and invite teammates after — you&apos;ll be
+                  the team lead.
+                </p>
                 <Field label="Note to the company (optional)" htmlFor="note">
                   <Textarea
                     id="note"
