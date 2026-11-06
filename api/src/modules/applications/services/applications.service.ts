@@ -5,13 +5,14 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
-import { ApplicationStatus } from '../../../common/enums/index.js';
+import { ApplicationStatus, MembershipStatus } from '../../../common/enums/index.js';
 import { GraduatesService } from '../../graduates/services/graduates.service.js';
 import { CompaniesService } from '../../companies/services/companies.service.js';
 import { ProjectsService } from '../../projects/services/projects.service.js';
 import { Deliverable } from '../../deliverables/entities/deliverable.entity.js';
 import { Evaluation } from '../../evaluations/entities/evaluation.entity.js';
 import { Application } from '../entities/application.entity.js';
+import { ApplicationMembership } from '../entities/application-membership.entity.js';
 import { ApplyDto } from '../dto/apply.dto.js';
 import {
   assertBeforeApplicationDeadline,
@@ -32,6 +33,8 @@ export class ApplicationsService {
     private readonly deliverables: Repository<Deliverable>,
     @InjectRepository(Evaluation)
     private readonly evaluations: Repository<Evaluation>,
+    @InjectRepository(ApplicationMembership)
+    private readonly memberships: Repository<ApplicationMembership>,
     private readonly graduates: GraduatesService,
     private readonly companies: CompaniesService,
     private readonly projects: ProjectsService,
@@ -67,11 +70,21 @@ export class ApplicationsService {
     return this.applications.save(application);
   }
 
-  /** The graduate's own applications with project, status and evaluation summary. */
+  /** The graduate's own applications (as lead or accepted teammate). */
   async listMine(userId: string): Promise<unknown[]> {
     const graduate = await this.graduates.getByUserIdOrThrow(userId);
+
+    // Applications where this graduate is an accepted teammate (not the lead).
+    const memberOf = await this.memberships.find({
+      where: { graduateId: graduate.id, status: MembershipStatus.ACCEPTED },
+      select: { applicationId: true },
+    });
+    const teamAppIds = new Set(memberOf.map((m) => m.applicationId));
+
     const apps = await this.applications.find({
-      where: { graduateId: graduate.id },
+      where: teamAppIds.size
+        ? [{ graduateId: graduate.id }, { id: In([...teamAppIds]) }]
+        : { graduateId: graduate.id },
       relations: { project: { company: true } },
       order: { createdAt: 'DESC' },
     });
@@ -98,6 +111,7 @@ export class ApplicationsService {
       return {
         id: a.id,
         status: a.status,
+        role: a.graduateId === graduate.id ? 'LEAD' : 'MEMBER',
         note: a.note,
         declineReason: a.declineReason,
         termsAcceptedAt: a.termsAcceptedAt,
@@ -109,10 +123,15 @@ export class ApplicationsService {
           status: a.project.status,
           submissionDeadline: a.project.submissionDeadline,
           deliverableFormat: a.project.deliverableFormat,
+          coverImageUrl: a.project.coverImageUrl,
           company: { id: a.project.company.id, name: a.project.company.name },
         },
         deliverable: deliverable
-          ? { id: deliverable.id, submittedAt: deliverable.submittedAt }
+          ? {
+              id: deliverable.id,
+              submittedAt: deliverable.submittedAt,
+              version: deliverable.version,
+            }
           : null,
         evaluation: evaluation
           ? {
@@ -120,6 +139,7 @@ export class ApplicationsService {
               outcome: evaluation.outcome,
               feedback: evaluation.feedback,
               evaluatedAt: evaluation.evaluatedAt,
+              stale: evaluation.stale,
             }
           : null,
       };
@@ -204,6 +224,27 @@ export class ApplicationsService {
     const application = await this.getByIdOrThrow(applicationId);
     if (application.graduateId !== graduate.id) {
       throw new ForbiddenException('You do not own this application.');
+    }
+    return application;
+  }
+
+  /** V1-team: load an application if the graduate is the lead or an accepted member. */
+  async loadForTeamGraduate(
+    userId: string,
+    applicationId: string,
+  ): Promise<Application> {
+    const graduate = await this.graduates.getByUserIdOrThrow(userId);
+    const application = await this.getByIdOrThrow(applicationId);
+    if (application.graduateId === graduate.id) return application;
+    const membership = await this.memberships.findOne({
+      where: {
+        applicationId,
+        graduateId: graduate.id,
+        status: MembershipStatus.ACCEPTED,
+      },
+    });
+    if (!membership) {
+      throw new ForbiddenException('You are not on this team.');
     }
     return application;
   }
