@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { PageHeader } from '@/components/PageHeader';
@@ -9,7 +10,8 @@ import { StatusPill } from '@/components/ui/StatusPill';
 import { DeadlineChip } from '@/components/ui/DeadlineChip';
 import { PrizeBadge } from '@/components/ui/PrizeBadge';
 import { EmptyState, ErrorState, Skeleton } from '@/components/ui/States';
-import { api } from '@/lib/api-client';
+import { ActivityFeed } from '@/components/ActivityFeed';
+import { api, ApiError } from '@/lib/api-client';
 import type { CompanyDashboard } from '@/lib/types';
 
 type NumericSummaryKey =
@@ -34,6 +36,29 @@ export default function CompanyHomePage() {
     mutationFn: (id: string) => api.post(`/projects/${id}/close`),
     onSuccess: () =>
       queryClient.invalidateQueries({ queryKey: ['dashboard', 'company'] }),
+  });
+
+  // Inline delete-confirm: which project is pending confirmation, and any error.
+  const [confirmingId, setConfirmingId] = useState<string | null>(null);
+  const [deleteError, setDeleteError] = useState<Record<string, string>>({});
+
+  const deleteProject = useMutation({
+    mutationFn: (id: string) => api.del(`/projects/${id}`),
+    onSuccess: (_data, id) => {
+      setConfirmingId(null);
+      setDeleteError((e) => {
+        const next = { ...e };
+        delete next[id];
+        return next;
+      });
+      queryClient.invalidateQueries({ queryKey: ['dashboard', 'company'] });
+    },
+    onError: (err, id) =>
+      setDeleteError((e) => ({
+        ...e,
+        [id]:
+          err instanceof ApiError ? err.message : 'Could not delete the project.',
+      })),
   });
 
   if (isLoading) {
@@ -114,7 +139,14 @@ export default function CompanyHomePage() {
         <div className="flex flex-col gap-3">
           {data.projects.map((p) => (
             <Card key={p.id} className="flex items-center justify-between gap-4">
-              <div className="min-w-0">
+              <div className="flex min-w-0 items-center gap-4">
+                {p.coverImageUrl && (
+                  <div className="hidden h-14 w-20 shrink-0 overflow-hidden rounded-[10px] border border-white/10 sm:block">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={p.coverImageUrl} alt="" className="h-full w-full object-cover" />
+                  </div>
+                )}
+                <div className="min-w-0">
                 <div className="flex items-center gap-2">
                   <p className="truncate text-[18px] font-semibold text-n900">
                     {p.title}
@@ -132,37 +164,91 @@ export default function CompanyHomePage() {
                     {p.applicationCounts.DECLINED ?? 0} declined
                   </span>
                 </div>
+                </div>
               </div>
-              <div className="flex shrink-0 items-center gap-2">
-                {p.status !== 'DRAFT' && (
-                  <Link href={`/projects/${p.id}/applications`}>
-                    <Button variant="secondary" size="sm">
-                      Review queue
+              <div className="flex shrink-0 flex-col items-end gap-2">
+                {confirmingId === p.id ? (
+                  <div className="flex flex-col items-end gap-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[13px] text-n700">Delete project?</span>
+                      <Button
+                        variant="danger"
+                        size="sm"
+                        disabled={deleteProject.isPending}
+                        onClick={() => deleteProject.mutate(p.id)}
+                      >
+                        {deleteProject.isPending ? 'Deleting…' : 'Confirm'}
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setConfirmingId(null)}
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                    <p className="max-w-[260px] text-right text-[12px] text-n500">
+                      This also removes any pending applications. It can&apos;t be
+                      undone.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    {p.status !== 'DRAFT' && (
+                      <Link href={`/projects/${p.id}/applications`}>
+                        <Button variant="secondary" size="sm">
+                          Review queue
+                        </Button>
+                      </Link>
+                    )}
+                    {p.status === 'DRAFT' && (
+                      <Link href={`/projects/new?id=${p.id}`}>
+                        <Button variant="secondary" size="sm">
+                          Edit draft
+                        </Button>
+                      </Link>
+                    )}
+                    {p.status === 'IN_PROGRESS' && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        disabled={closeProject.isPending}
+                        onClick={() => closeProject.mutate(p.id)}
+                      >
+                        Close
+                      </Button>
+                    )}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-danger hover:bg-danger-50"
+                      onClick={() => {
+                        setDeleteError((e) => {
+                          const next = { ...e };
+                          delete next[p.id];
+                          return next;
+                        });
+                        setConfirmingId(p.id);
+                      }}
+                    >
+                      Delete
                     </Button>
-                  </Link>
+                  </div>
                 )}
-                {p.status === 'DRAFT' && (
-                  <Link href={`/projects/new?id=${p.id}`}>
-                    <Button variant="secondary" size="sm">
-                      Edit draft
-                    </Button>
-                  </Link>
-                )}
-                {p.status === 'IN_PROGRESS' && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    disabled={closeProject.isPending}
-                    onClick={() => closeProject.mutate(p.id)}
-                  >
-                    Close
-                  </Button>
+                {deleteError[p.id] && (
+                  <p className="max-w-[260px] text-right text-[12px] text-danger">
+                    {deleteError[p.id]}
+                  </p>
                 )}
               </div>
             </Card>
           ))}
         </div>
       )}
+
+      <div className="mt-8">
+        <ActivityFeed />
+      </div>
     </div>
   );
 }

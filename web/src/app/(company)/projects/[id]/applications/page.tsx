@@ -13,6 +13,7 @@ import { StatusPill } from '@/components/ui/StatusPill';
 import { Field } from '@/components/ui/Field';
 import { Textarea } from '@/components/ui/Textarea';
 import { EmptyState, ErrorState, Skeleton } from '@/components/ui/States';
+import { TeamPanel } from '@/components/TeamPanel';
 import { cn } from '@/lib/cn';
 import { api, ApiError } from '@/lib/api-client';
 import type { Project, QueueApplicant } from '@/lib/types';
@@ -191,6 +192,8 @@ export default function ReviewQueuePage({
                 Terms accepted {format(new Date(selected.termsAcceptedAt), 'd MMM yyyy, HH:mm')}
               </p>
 
+              <TeamPanel applicationId={selected.id} isLead={false} canInvite={false} />
+
               {selected.status === 'DECLINED' && selected.declineReason && (
                 <p className="rounded-[8px] bg-danger-50 p-3 text-[14px] text-danger">
                   <span className="font-medium">Declined:</span> {selected.declineReason}
@@ -231,7 +234,7 @@ export default function ReviewQueuePage({
                   ) : (
                     <div className="flex items-center justify-between gap-4">
                       <p className="text-[12px] text-n500">
-                        Accepting locks this project&apos;s brief and terms.
+                        Accepting admits the whole team and locks the brief.
                       </p>
                       <div className="flex gap-2">
                         <Button
