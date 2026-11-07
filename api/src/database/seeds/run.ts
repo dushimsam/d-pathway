@@ -7,9 +7,13 @@ import { Graduate } from '../../modules/graduates/entities/graduate.entity.js';
 import { Project } from '../../modules/projects/entities/project.entity.js';
 import {
   DeliverableFormat,
+  PrizeStatus,
   ProjectStatus,
   UserRole,
 } from '../../common/enums/index.js';
+
+/** Starting wallet balance for each seeded organisation (demo convenience). */
+const SEED_BALANCE = 1_000_000;
 
 /**
  * Pilot seed. The platform is for any organisation posting real work — not just
@@ -224,6 +228,7 @@ async function run(): Promise<void> {
             industry: org.industry,
             representativeTitle: org.title,
             description: org.description,
+            balance: SEED_BALANCE,
           }),
         );
       }
@@ -246,6 +251,8 @@ async function run(): Promise<void> {
             ipTerms: IP,
             prizeAmount: p.prizeAmount ?? null,
             prizeCurrency: p.prizeAmount != null ? 'RWF' : null,
+            // Seeded prizes are treated as escrowed (held) against the balance.
+            prizeStatus: p.prizeAmount != null ? PrizeStatus.HELD : null,
             coverImageUrl: p.cover ?? org.cover,
             coverImagePublicId: null,
             status: p.status,
@@ -253,6 +260,13 @@ async function run(): Promise<void> {
           }),
         ),
       );
+
+      // Reflect the held prizes by reserving them out of the starting balance.
+      const heldSum = org.projects.reduce((s, p) => s + (p.prizeAmount ?? 0), 0);
+      if (heldSum > 0) {
+        company.balance -= heldSum;
+        await manager.getRepository(Company).save(company);
+      }
     }
 
     // A sample graduate to exercise the catalogue during manual testing.
@@ -276,6 +290,37 @@ async function run(): Promise<void> {
           skills: ['typescript', 'react', 'web', 'design'],
           links: ['https://github.com/aline'],
           location: 'Kigali, Gasabo',
+        }),
+      );
+    }
+
+    // A small talent pool so the search page isn't empty on a fresh install.
+    const MORE_STUDENTS = [
+      { name: 'Eric Habimana', email: 'eric@alu.edu', edu: 'BSc Computer Science, UR, 2025', skills: ['python', 'data', 'spreadsheets'], loc: 'Kigali, Nyarugenge' },
+      { name: 'Chantal Ingabire', email: 'chantal@alu.edu', edu: 'Diploma in Graphic Design, RCA, 2026', skills: ['design', 'branding', 'figma'], loc: 'Kigali, Kicukiro' },
+      { name: 'Jean-Paul Niyonsenga', email: 'jp@alu.edu', edu: 'BSc Software Engineering, CMU-Africa, 2025', skills: ['typescript', 'react', 'node', 'web'], loc: 'Kigali, Gasabo' },
+      { name: 'Divine Umutoni', email: 'divine@alu.edu', edu: 'BBA, AUCA, 2026', skills: ['spreadsheets', 'data', 'forms'], loc: 'Musanze' },
+      { name: 'Kevin Mugisha', email: 'kevin@alu.edu', edu: 'BSc IT, INES-Ruhengeri, 2025', skills: ['web', 'html', 'css', 'forms'], loc: 'Kigali, Gasabo' },
+      { name: 'Grace Mukamana', email: 'grace@alu.edu', edu: 'Diploma in Multimedia, RP, 2026', skills: ['video editing', 'design', 'branding'], loc: 'Huye' },
+    ];
+    for (const s of MORE_STUDENTS) {
+      const exists = await manager.getRepository(User).findOne({ where: { email: s.email } });
+      if (exists) continue;
+      const u = await manager.getRepository(User).save(
+        manager.getRepository(User).create({
+          email: s.email,
+          passwordHash,
+          role: UserRole.GRADUATE,
+        }),
+      );
+      await manager.getRepository(Graduate).save(
+        manager.getRepository(Graduate).create({
+          userId: u.id,
+          fullName: s.name,
+          education: s.edu,
+          skills: s.skills,
+          links: [],
+          location: s.loc,
         }),
       );
     }

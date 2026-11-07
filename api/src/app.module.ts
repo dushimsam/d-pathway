@@ -20,6 +20,9 @@ import { EvaluationsModule } from './modules/evaluations/evaluations.module.js';
 import { UploadsModule } from './modules/uploads/uploads.module.js';
 import { DashboardsModule } from './modules/dashboards/dashboards.module.js';
 import { ActivityModule } from './modules/activity/activity.module.js';
+import { WalletModule } from './modules/wallet/wallet.module.js';
+import { TalentModule } from './modules/talent/talent.module.js';
+import { ReviewsModule } from './modules/reviews/reviews.module.js';
 
 @Module({
   imports: [
@@ -49,6 +52,9 @@ import { ActivityModule } from './modules/activity/activity.module.js';
     UploadsModule,
     DashboardsModule,
     ActivityModule,
+    WalletModule,
+    TalentModule,
+    ReviewsModule,
   ],
   providers: [
     { provide: APP_FILTER, useClass: HttpExceptionFilter },

@@ -7,6 +7,9 @@ import { ApplicationMembership } from '../modules/applications/entities/applicat
 import { Deliverable } from '../modules/deliverables/entities/deliverable.entity.js';
 import { Evaluation } from '../modules/evaluations/entities/evaluation.entity.js';
 import { Activity } from '../modules/activity/entities/activity.entity.js';
+import { WalletTransaction } from '../modules/wallet/entities/wallet-transaction.entity.js';
+import { CompanyReview } from '../modules/reviews/entities/company-review.entity.js';
+import { SavedBrief } from '../modules/catalogue/entities/saved-brief.entity.js';
 
 /** The single source of truth for the entity set, shared by the app and the CLI. */
 export const entities = [
@@ -19,4 +22,7 @@ export const entities = [
   Deliverable,
   Evaluation,
   Activity,
+  WalletTransaction,
+  CompanyReview,
+  SavedBrief,
 ];
