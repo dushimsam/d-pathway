@@ -19,6 +19,17 @@ export class Graduate extends BaseEntity {
   @Column({ type: 'varchar', nullable: true })
   location!: string | null;
 
+  // Profile photo (Cloudinary).
+  @Column({ type: 'varchar', nullable: true })
+  photoUrl!: string | null;
+
+  @Column({ type: 'varchar', nullable: true })
+  photoPublicId!: string | null;
+
+  /** Earned, cash-outable wallet balance (same unit as prizes; RWF 1:1). */
+  @Column({ type: 'integer', default: 0 })
+  balance!: number;
+
   @Index({ unique: true })
   @Column({ type: 'uuid' })
   userId!: string;

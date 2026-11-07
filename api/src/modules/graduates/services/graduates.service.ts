@@ -71,6 +71,9 @@ export class GraduatesService {
       graduate.skills = GraduatesService.normaliseSkills(dto.skills);
     if (dto.links !== undefined) graduate.links = dto.links;
     if (dto.location !== undefined) graduate.location = dto.location;
+    if (dto.photoUrl !== undefined) graduate.photoUrl = dto.photoUrl || null;
+    if (dto.photoPublicId !== undefined)
+      graduate.photoPublicId = dto.photoPublicId || null;
     return this.graduates.save(graduate);
   }
 }

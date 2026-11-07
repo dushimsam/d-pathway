@@ -40,4 +40,16 @@ export class UpdateGraduateDto {
   @IsString()
   @MaxLength(255)
   location?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  photoUrl?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  @MaxLength(255)
+  photoPublicId?: string;
 }
