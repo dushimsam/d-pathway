@@ -20,6 +20,8 @@ export interface GraduateProfile {
   skills: string[];
   links: string[];
   location: string | null;
+  photoUrl: string | null;
+  photoPublicId: string | null;
 }
 
 export interface CompanyProfile {
@@ -28,6 +30,51 @@ export interface CompanyProfile {
   industry: string | null;
   description: string | null;
   representativeTitle: string | null;
+  logoUrl: string | null;
+  logoPublicId: string | null;
+  website: string | null;
+  location: string | null;
+  size: string | null;
+}
+
+export interface RatingSummary {
+  average: number;
+  count: number;
+}
+
+export interface CompanyReview {
+  id: string;
+  rating: number;
+  comment: string | null;
+  graduateName: string;
+  projectTitle: string;
+  createdAt: string;
+}
+
+export interface CompanyReviews {
+  summary: RatingSummary;
+  items: CompanyReview[];
+}
+
+export interface PublicCompany {
+  id: string;
+  name: string;
+  industry: string | null;
+  description: string | null;
+  logoUrl: string | null;
+  website: string | null;
+  location: string | null;
+  size: string | null;
+  rating: RatingSummary;
+  openProjects: Array<{
+    id: string;
+    title: string;
+    requiredSkills: string[];
+    prizeAmount: number | null;
+    prizeCurrency: string | null;
+    applicationDeadline: string;
+    coverImageUrl: string | null;
+  }>;
 }
 
 export interface CurrentUser {
@@ -48,6 +95,8 @@ export interface Project {
   ipTerms: string;
   prizeAmount: number | null;
   prizeCurrency: string | null;
+  prizeStatus: 'HELD' | 'RELEASED' | 'REFUNDED' | null;
+  winnerGraduateId: string | null;
   coverImageUrl: string | null;
   coverImagePublicId: string | null;
   status: ProjectStatus;
@@ -66,6 +115,44 @@ export interface CatalogueCompany {
   industry: string | null;
 }
 
+export interface TalentStats {
+  briefsCompleted: number;
+  avgScore: number;
+  interviewsSelected: number;
+  prizesWon: number;
+  prizeTotal: number;
+}
+
+export interface TalentListItem {
+  id: string;
+  fullName: string;
+  education: string | null;
+  location: string | null;
+  skills: string[];
+  photoUrl: string | null;
+  stats: TalentStats;
+}
+
+export interface StudentProfile {
+  id: string;
+  fullName: string;
+  education: string | null;
+  location: string | null;
+  skills: string[];
+  links: string[];
+  photoUrl: string | null;
+  stats: TalentStats;
+  history: Array<{
+    projectId: string;
+    projectTitle: string;
+    companyId: string;
+    companyName: string;
+    score: number;
+    outcome: EvaluationOutcome;
+    evaluatedAt: string;
+  }>;
+}
+
 export interface Paginated<T> {
   items: T[];
   page: number;
@@ -75,6 +162,33 @@ export interface Paginated<T> {
 }
 
 export type MembershipStatus = 'INVITED' | 'ACCEPTED' | 'DECLINED';
+export type WalletTxnType = 'TOPUP' | 'HOLD' | 'REFUND' | 'PAYOUT' | 'WITHDRAWAL';
+
+export interface WalletTransaction {
+  id: string;
+  type: WalletTxnType;
+  amount: number;
+  balanceAfter: number;
+  description: string;
+  createdAt: string;
+}
+
+export interface CompanyWallet {
+  role: 'COMPANY';
+  currency: string;
+  balance: number;
+  reserved: number;
+  transactions: WalletTransaction[];
+}
+
+export interface GraduateWallet {
+  role: 'GRADUATE';
+  currency: string;
+  balance: number;
+  transactions: WalletTransaction[];
+}
+
+export type Wallet = CompanyWallet | GraduateWallet;
 export type TeamRole = 'LEAD' | 'MEMBER';
 export type ActivityType = 'DELIVERABLE_SUBMITTED' | 'EVALUATION_RECORDED';
 
@@ -139,6 +253,47 @@ export interface MyApplication {
   };
   deliverable: { id: string; submittedAt: string; version?: number } | null;
   evaluation: EvaluationSummary | null;
+}
+
+export type BoardStage =
+  | 'applied'
+  | 'accepted'
+  | 'submitted'
+  | 'evaluated'
+  | 'awarded'
+  | 'declined';
+
+export interface BoardCandidate {
+  id: string;
+  stage: BoardStage;
+  status: ApplicationStatus;
+  note: string | null;
+  declineReason: string | null;
+  createdAt: string;
+  isWinner: boolean;
+  graduate: {
+    id: string;
+    fullName: string;
+    education: string | null;
+    skills: string[];
+    location: string | null;
+  };
+  deliverable: { id: string; submittedAt: string; version?: number } | null;
+  evaluation: { score: number; outcome: EvaluationOutcome; stale?: boolean } | null;
+}
+
+export interface ProjectBoard {
+  project: {
+    id: string;
+    title: string;
+    status: ProjectStatus;
+    prizeStatus: 'HELD' | 'RELEASED' | 'REFUNDED' | null;
+    prizeAmount: number | null;
+    prizeCurrency: string | null;
+    winnerGraduateId: string | null;
+    submissionDeadline: string;
+  };
+  candidates: BoardCandidate[];
 }
 
 export interface QueueApplicant {

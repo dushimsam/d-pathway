@@ -10,10 +10,14 @@ function requiredRole(pathname: string): Role | null {
   if (pathname.startsWith('/deliverables')) return 'COMPANY';
   if (pathname === '/projects' || pathname === '/projects/new') return 'COMPANY';
   if (/^\/projects\/[^/]+\/applications$/.test(pathname)) return 'COMPANY';
+  if (/^\/projects\/[^/]+\/board$/.test(pathname)) return 'COMPANY';
   if (/^\/projects\/[^/]+$/.test(pathname)) return 'GRADUATE';
   if (pathname === '/catalogue' || pathname === '/dashboard') return 'GRADUATE';
-  if (pathname === '/applications') return 'GRADUATE';
+  if (pathname === '/applications' || pathname === '/earnings') return 'GRADUATE';
   if (/^\/applications\/[^/]+\/submit$/.test(pathname)) return 'GRADUATE';
+  if (pathname === '/wallet' || pathname === '/settings') return 'COMPANY';
+  if (pathname === '/talent' || /^\/students\/[^/]+$/.test(pathname)) return 'COMPANY';
+  // Public company pages (/companies/:id) pass through for anyone.
   return null;
 }
 
