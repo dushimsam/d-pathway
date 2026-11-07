@@ -19,6 +19,16 @@ export const configValidationSchema = Joi.object({
   CLOUDINARY_API_SECRET: Joi.string().required(),
   // Root Cloudinary folder every upload is nested under (e.g. capstone/deliverables).
   CLOUDINARY_UPLOAD_FOLDER: Joi.string().default('capstone'),
+
+  // Stripe (test mode). Optional so the app still boots before it's configured;
+  // the wallet top-up endpoint fails clearly if the key is missing.
+  STRIPE_SECRET_KEY: Joi.string().allow('').default(''),
+  STRIPE_CURRENCY: Joi.string().lowercase().default('rwf'),
+
+  // Resend for transactional email. Optional: when RESEND_API_KEY is empty the
+  // mailer logs and no-ops, so the app runs fully without email configured.
+  RESEND_API_KEY: Joi.string().allow('').default(''),
+  MAIL_FROM: Joi.string().default('onboarding@resend.dev'),
 })
   // process.env and docker-compose's POSTGRES_* carry many keys we don't model.
   .unknown(true);

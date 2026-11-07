@@ -55,4 +55,18 @@ export class AppConfigService {
       uploadFolder: this.get<string>('CLOUDINARY_UPLOAD_FOLDER'),
     };
   }
+
+  get stripe(): { secretKey: string; currency: string } {
+    return {
+      secretKey: this.get<string>('STRIPE_SECRET_KEY'),
+      currency: this.get<string>('STRIPE_CURRENCY'),
+    };
+  }
+
+  get mail(): { apiKey: string; from: string } {
+    return {
+      apiKey: this.get<string>('RESEND_API_KEY'),
+      from: this.get<string>('MAIL_FROM'),
+    };
+  }
 }
