@@ -15,6 +15,7 @@ import { UserRole } from '../../../common/enums/index.js';
 import { ProjectsService } from '../services/projects.service.js';
 import { CreateProjectDto } from '../dto/create-project.dto.js';
 import { UpdateProjectDto } from '../dto/update-project.dto.js';
+import { AwardPrizeDto } from '../dto/award-prize.dto.js';
 
 @ApiTags('projects')
 @ApiBearerAuth()
@@ -66,6 +67,16 @@ export class ProjectsController {
   @Post(':id/close')
   close(@CurrentUser() user: AuthUser, @Param('id', ParseUUIDPipe) id: string) {
     return this.projects.close(user.id, id);
+  }
+
+  @Roles(UserRole.COMPANY)
+  @Post(':id/award')
+  award(
+    @CurrentUser() user: AuthUser,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: AwardPrizeDto,
+  ) {
+    return this.projects.award(user.id, id, dto.graduateId);
   }
 
   @Roles(UserRole.COMPANY)

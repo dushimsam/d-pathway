@@ -1,14 +1,21 @@
 import {
+  ConflictException,
   ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { ApplicationStatus, ProjectStatus } from '../../../common/enums/index.js';
+import { DataSource, Repository } from 'typeorm';
+import {
+  ApplicationStatus,
+  PrizeStatus,
+  ProjectStatus,
+} from '../../../common/enums/index.js';
 import { CacheService } from '../../../redis/cache.service.js';
 import { CATALOGUE_CACHE_PREFIX } from '../../../redis/redis.constants.js';
 import { CompaniesService } from '../../companies/services/companies.service.js';
+import { WalletService } from '../../wallet/services/wallet.service.js';
+import { EventsPublisher } from '../../activity/services/events.publisher.js';
 import { Application } from '../../applications/entities/application.entity.js';
 import { Project } from '../entities/project.entity.js';
 import { CreateProjectDto } from '../dto/create-project.dto.js';
@@ -38,6 +45,9 @@ export class ProjectsService {
     private readonly applications: Repository<Application>,
     private readonly companies: CompaniesService,
     private readonly cache: CacheService,
+    private readonly wallet: WalletService,
+    private readonly dataSource: DataSource,
+    private readonly events: EventsPublisher,
   ) {}
 
   /** Drop every cached catalogue page after a write that changes what's listed. */
@@ -111,55 +121,80 @@ export class ProjectsService {
 
   async create(userId: string, dto: CreateProjectDto): Promise<Project> {
     const companyId = await this.companyIdForUser(userId);
-    const project = this.projects.create({
-      companyId,
-      title: dto.title,
-      brief: dto.brief,
-      requiredSkills: ProjectsService.normaliseSkills(dto.requiredSkills),
-      applicationDeadline: new Date(dto.applicationDeadline),
-      submissionDeadline: new Date(dto.submissionDeadline),
-      deliverableFormat: dto.deliverableFormat,
-      ipTerms: dto.ipTerms,
-      prizeAmount: dto.prizeAmount ?? null,
-      prizeCurrency:
-        dto.prizeAmount != null ? dto.prizeCurrency ?? 'RWF' : null,
-      coverImageUrl: dto.coverImageUrl ?? null,
-      coverImagePublicId: dto.coverImagePublicId ?? null,
-      status: ProjectStatus.DRAFT,
-      publishedAt: null,
+    const hasPrize = dto.prizeAmount != null && dto.prizeAmount > 0;
+
+    // A prized project escrows the prize out of the company's balance at creation,
+    // so a company can never commit more prize money than it has topped up.
+    const saved = await this.dataSource.transaction(async (m) => {
+      const project = m.create(Project, {
+        companyId,
+        title: dto.title,
+        brief: dto.brief,
+        requiredSkills: ProjectsService.normaliseSkills(dto.requiredSkills),
+        applicationDeadline: new Date(dto.applicationDeadline),
+        submissionDeadline: new Date(dto.submissionDeadline),
+        deliverableFormat: dto.deliverableFormat,
+        ipTerms: dto.ipTerms,
+        prizeAmount: hasPrize ? dto.prizeAmount! : null,
+        prizeCurrency: hasPrize ? dto.prizeCurrency ?? 'RWF' : null,
+        prizeStatus: hasPrize ? PrizeStatus.HELD : null,
+        coverImageUrl: dto.coverImageUrl ?? null,
+        coverImagePublicId: dto.coverImagePublicId ?? null,
+        status: ProjectStatus.DRAFT,
+        publishedAt: null,
+      });
+      const created = await m.save(project);
+      if (hasPrize) {
+        await this.wallet.holdPrize(m, companyId, dto.prizeAmount!, created.id, created.title);
+      }
+      return created;
     });
-    const saved = await this.projects.save(project);
+
     await this.invalidateCatalogue();
     return saved;
   }
 
   async update(userId: string, id: string, dto: UpdateProjectDto): Promise<Project> {
     const companyId = await this.companyIdForUser(userId);
-    const project = await this.findByIdOrThrow(id);
-    this.assertOwnedByCompany(project, companyId);
-    assertEditable(project); // P2 / P-LOCK
 
-    if (dto.title !== undefined) project.title = dto.title;
-    if (dto.brief !== undefined) project.brief = dto.brief;
-    if (dto.requiredSkills !== undefined)
-      project.requiredSkills = ProjectsService.normaliseSkills(dto.requiredSkills);
-    if (dto.applicationDeadline !== undefined)
-      project.applicationDeadline = new Date(dto.applicationDeadline);
-    if (dto.submissionDeadline !== undefined)
-      project.submissionDeadline = new Date(dto.submissionDeadline);
-    if (dto.deliverableFormat !== undefined)
-      project.deliverableFormat = dto.deliverableFormat;
-    if (dto.ipTerms !== undefined) project.ipTerms = dto.ipTerms;
-    if (dto.prizeAmount !== undefined) {
-      project.prizeAmount = dto.prizeAmount;
-      project.prizeCurrency =
-        dto.prizeAmount != null ? dto.prizeCurrency ?? project.prizeCurrency ?? 'RWF' : null;
-    }
-    if (dto.coverImageUrl !== undefined) project.coverImageUrl = dto.coverImageUrl;
-    if (dto.coverImagePublicId !== undefined)
-      project.coverImagePublicId = dto.coverImagePublicId;
+    const saved = await this.dataSource.transaction(async (m) => {
+      const project = await m.findOne(Project, { where: { id } });
+      if (!project) throw new NotFoundException('Project not found.');
+      this.assertOwnedByCompany(project, companyId);
+      assertEditable(project); // P2 / P-LOCK
 
-    const saved = await this.projects.save(project);
+      if (dto.title !== undefined) project.title = dto.title;
+      if (dto.brief !== undefined) project.brief = dto.brief;
+      if (dto.requiredSkills !== undefined)
+        project.requiredSkills = ProjectsService.normaliseSkills(dto.requiredSkills);
+      if (dto.applicationDeadline !== undefined)
+        project.applicationDeadline = new Date(dto.applicationDeadline);
+      if (dto.submissionDeadline !== undefined)
+        project.submissionDeadline = new Date(dto.submissionDeadline);
+      if (dto.deliverableFormat !== undefined)
+        project.deliverableFormat = dto.deliverableFormat;
+      if (dto.ipTerms !== undefined) project.ipTerms = dto.ipTerms;
+
+      // Re-escrow when the prize changes: refund the old hold, hold the new amount.
+      if (dto.prizeAmount !== undefined) {
+        const held = project.prizeStatus === PrizeStatus.HELD ? project.prizeAmount ?? 0 : 0;
+        const desired = dto.prizeAmount != null && dto.prizeAmount > 0 ? dto.prizeAmount : 0;
+        if (held !== desired) {
+          if (held > 0) await this.wallet.refundPrize(m, companyId, held, id, project.title);
+          if (desired > 0) await this.wallet.holdPrize(m, companyId, desired, id, project.title);
+        }
+        project.prizeAmount = desired > 0 ? desired : null;
+        project.prizeCurrency = desired > 0 ? dto.prizeCurrency ?? project.prizeCurrency ?? 'RWF' : null;
+        project.prizeStatus = desired > 0 ? PrizeStatus.HELD : null;
+      }
+
+      if (dto.coverImageUrl !== undefined) project.coverImageUrl = dto.coverImageUrl;
+      if (dto.coverImagePublicId !== undefined)
+        project.coverImagePublicId = dto.coverImagePublicId;
+
+      return m.save(project);
+    });
+
     await this.invalidateCatalogue();
     return saved;
   }
@@ -204,9 +239,63 @@ export class ProjectsService {
     });
     assertDeletable(accepted); // P-DEL
 
-    await this.projects.delete(id);
+    await this.dataSource.transaction(async (m) => {
+      // Return any still-held prize to the company before removing the project.
+      if (project.prizeStatus === PrizeStatus.HELD && project.prizeAmount) {
+        await this.wallet.refundPrize(m, companyId, project.prizeAmount, id, project.title);
+      }
+      await m.delete(Project, id);
+    });
+
     await this.invalidateCatalogue();
     return { id };
+  }
+
+  /**
+   * P-AWARD: complete the project for one accepted student and release the held
+   * prize to their balance. The project closes; the prize can be awarded once.
+   */
+  async award(userId: string, id: string, graduateId: string): Promise<Project> {
+    const companyId = await this.companyIdForUser(userId);
+
+    const saved = await this.dataSource.transaction(async (m) => {
+      const project = await m.findOne(Project, { where: { id } });
+      if (!project) throw new NotFoundException('Project not found.');
+      this.assertOwnedByCompany(project, companyId);
+
+      if (project.prizeStatus !== PrizeStatus.HELD || !project.prizeAmount) {
+        throw new ConflictException('This project has no held prize to award.');
+      }
+
+      // The winner must be an accepted applicant on this project.
+      const accepted = await m.findOne(Application, {
+        where: { projectId: id, graduateId, status: ApplicationStatus.ACCEPTED },
+      });
+      if (!accepted) {
+        throw new ForbiddenException('You can only award an accepted applicant.');
+      }
+
+      await this.wallet.releasePrize(m, graduateId, project.prizeAmount, id, project.title);
+      project.prizeStatus = PrizeStatus.RELEASED;
+      project.winnerGraduateId = graduateId;
+      project.status = ProjectStatus.CLOSED;
+      return m.save(project);
+    });
+
+    await this.invalidateCatalogue();
+
+    if (saved.prizeAmount) {
+      const company = await this.companies.findById(saved.companyId);
+      await this.events.prizeAwarded({
+        graduateId,
+        companyName: company?.name ?? 'A company',
+        projectId: saved.id,
+        projectTitle: saved.title,
+        amount: saved.prizeAmount,
+        currency: saved.prizeCurrency ?? 'rwf',
+      });
+    }
+    return saved;
   }
 
   async listMine(userId: string): Promise<

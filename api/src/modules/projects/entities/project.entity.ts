@@ -1,6 +1,10 @@
 import { Column, Entity, Index, JoinColumn, ManyToOne, type Relation } from 'typeorm';
 import { BaseEntity } from '../../../common/entities/base.entity.js';
-import { DeliverableFormat, ProjectStatus } from '../../../common/enums/index.js';
+import {
+  DeliverableFormat,
+  PrizeStatus,
+  ProjectStatus,
+} from '../../../common/enums/index.js';
 import { Company } from '../../companies/entities/company.entity.js';
 
 /**
@@ -36,6 +40,15 @@ export class Project extends BaseEntity {
 
   @Column({ type: 'varchar', length: 8, nullable: true, default: 'RWF' })
   prizeCurrency!: string | null;
+
+  // Escrow state of the prize. HELD once funded at creation, RELEASED to the
+  // winning student on award, REFUNDED to the company if the project is deleted.
+  @Column({ type: 'enum', enum: PrizeStatus, nullable: true })
+  prizeStatus!: PrizeStatus | null;
+
+  // The student the prize was awarded to (set when the project is completed).
+  @Column({ type: 'uuid', nullable: true })
+  winnerGraduateId!: string | null;
 
   // Optional cover photo shown in the catalogue and on the project page.
   @Column({ type: 'varchar', nullable: true })
