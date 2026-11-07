@@ -17,6 +17,26 @@ export class Company extends BaseEntity {
   @Column({ type: 'varchar', nullable: true })
   representativeTitle!: string | null;
 
+  // Public profile / branding.
+  @Column({ type: 'varchar', nullable: true })
+  logoUrl!: string | null;
+
+  @Column({ type: 'varchar', nullable: true })
+  logoPublicId!: string | null;
+
+  @Column({ type: 'varchar', nullable: true })
+  website!: string | null;
+
+  @Column({ type: 'varchar', nullable: true })
+  location!: string | null;
+
+  @Column({ type: 'varchar', nullable: true })
+  size!: string | null;
+
+  /** Available wallet balance in minor units of the prize currency (RWF is 1:1). */
+  @Column({ type: 'integer', default: 0 })
+  balance!: number;
+
   @Index({ unique: true })
   @Column({ type: 'uuid' })
   userId!: string;
