@@ -1,4 +1,5 @@
 import { FileText, Trophy, UploadCloud } from 'lucide-react';
+import { Reveal } from './Reveal';
 
 const STEPS = [
   {
@@ -29,7 +30,7 @@ export function HowItWorks() {
   return (
     <section id="how" className="bg-[#f5f7ff] text-[#0b1020]">
       <div className="b-container b-container--wide py-20">
-        <div className="mx-auto max-w-2xl text-center">
+        <Reveal className="mx-auto max-w-2xl text-center">
           <span className="inline-block rounded-full bg-[#eaeeff] px-3.5 py-1.5 font-mono text-[12px] font-bold uppercase tracking-[0.12em] text-[#2847d3]">
             How it works
           </span>
@@ -43,12 +44,13 @@ export function HowItWorks() {
             One loop, end to end — a company sets a real problem, students prove
             themselves on it, and the work does the talking.
           </p>
-        </div>
+        </Reveal>
 
         <div className="mt-14 grid gap-6 md:grid-cols-3">
-          {STEPS.map(({ n, Icon, title, body }) => (
-            <div
+          {STEPS.map(({ n, Icon, title, body }, i) => (
+            <Reveal
               key={n}
+              delay={i * 120}
               className="group relative rounded-[20px] border border-[#e7eaf4] bg-white p-7 shadow-[0_10px_30px_-18px_rgba(16,32,79,0.35)] transition-transform hover:-translate-y-1"
             >
               <div className="flex items-center justify-between">
@@ -63,7 +65,7 @@ export function HowItWorks() {
               <p className="mt-2 text-[14.5px] leading-relaxed text-[#5c6276]">
                 {body}
               </p>
-            </div>
+            </Reveal>
           ))}
         </div>
       </div>

@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Star } from 'lucide-react';
+import { Reveal } from './Reveal';
 
 /**
  * Landing CTA banner (before the FAQ) — matches the reference: a vivid gradient
@@ -24,7 +25,7 @@ export function CtaBanner() {
           />
 
           {/* content */}
-          <div className="relative z-10 max-w-xl">
+          <Reveal className="relative z-10 max-w-xl" variant="left">
             <h2 className="font-display text-[clamp(2rem,3.6vw,3rem)] font-extrabold leading-[1.08] tracking-tight text-white">
               Kick off your hiring now — quick and easy!
             </h2>
@@ -42,41 +43,75 @@ export function CtaBanner() {
                 Contact us
               </a>
             </div>
-          </div>
+          </Reveal>
 
-          {/* cut-out person — waist sits at the banner's bottom edge, head overflows the top */}
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/images/real/person-cutout-top.png"
-            alt=""
-            aria-hidden
-            className="pointer-events-none absolute bottom-0 right-[3%] hidden h-[440px] w-auto drop-shadow-[0_18px_40px_rgba(10,20,80,0.3)] md:block"
-          />
+          {/* cut-out person (mobile) — shown in-flow below the content, sitting at
+              the card's bottom edge, since the absolute desktop version is hidden. */}
+          <Reveal
+            variant="up"
+            delay={120}
+            className="pointer-events-none relative z-10 -mb-14 mt-6 flex justify-center md:hidden"
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/images/real/person-cutout-top.png"
+              alt=""
+              aria-hidden
+              className="idle-float h-64 w-auto self-end drop-shadow-[0_18px_40px_rgba(10,20,80,0.3)] sm:h-72"
+            />
+          </Reveal>
+
+          {/* cut-out person (desktop) — drops in from above and settles at the bottom edge */}
+          <Reveal
+            variant="fall"
+            delay={120}
+            className="pointer-events-none absolute bottom-0 right-[3%] hidden h-[440px] w-auto md:block"
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/images/real/person-cutout-top.png"
+              alt=""
+              aria-hidden
+              className="idle-float h-full w-auto drop-shadow-[0_18px_40px_rgba(10,20,80,0.3)]"
+            />
+          </Reveal>
 
           {/* floating card — a live brief */}
-          <div className="absolute bottom-[96px] right-[220px] z-10 hidden w-[224px] rounded-[13px] bg-white p-3.5 shadow-[0_18px_40px_rgba(8,16,50,0.28)] lg:block">
-            <p className="text-[13px] font-bold text-[#10204f]">Logo &amp; brand kit</p>
-            <div className="mt-1.5 flex items-center justify-between">
-              <span className="flex items-center gap-1.5 text-[12px] text-[#7a8198]">
-                <span className="h-4 w-4 rounded-[5px] bg-gradient-to-br from-[#2847d3] to-[#1d3fb0]" />
-                Kigali Tailors
-              </span>
-              <span className="rounded-full bg-[#2847d3] px-2 py-0.5 text-[11px] font-bold text-white">
-                RWF 50,000
-              </span>
+          <Reveal
+            variant="zoom"
+            delay={900}
+            className="absolute bottom-[96px] right-[220px] z-10 hidden w-[224px] lg:block"
+          >
+            <div className="idle-float rounded-[13px] bg-white p-3.5 shadow-[0_18px_40px_rgba(8,16,50,0.28)]">
+              <p className="text-[13px] font-bold text-[#10204f]">Logo &amp; brand kit</p>
+              <div className="mt-1.5 flex items-center justify-between">
+                <span className="flex items-center gap-1.5 text-[12px] text-[#7a8198]">
+                  <span className="h-4 w-4 rounded-[5px] bg-gradient-to-br from-[#2847d3] to-[#1d3fb0]" />
+                  Kigali Tailors
+                </span>
+                <span className="rounded-full bg-[#2847d3] px-2 py-0.5 text-[11px] font-bold text-white">
+                  RWF 50,000
+                </span>
+              </div>
             </div>
-          </div>
+          </Reveal>
 
           {/* floating card — a stat */}
-          <div className="absolute bottom-[32px] right-[300px] z-10 hidden w-[168px] items-center gap-2.5 rounded-[13px] bg-white p-2.5 shadow-[0_18px_40px_rgba(8,16,50,0.28)] lg:flex">
-            <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#eaeeff] text-[#2847d3]">
-              <Star className="h-4 w-4 fill-[#2847d3]" />
-            </span>
-            <div>
-              <p className="text-[15px] font-extrabold leading-none text-[#10204f]">8+</p>
-              <p className="mt-0.5 text-[11px] text-[#7a8198]">Open briefs</p>
+          <Reveal
+            variant="zoom"
+            delay={1080}
+            className="absolute bottom-[32px] right-[300px] z-10 hidden w-[168px] lg:block"
+          >
+            <div className="idle-float--slow flex items-center gap-2.5 rounded-[13px] bg-white p-2.5 shadow-[0_18px_40px_rgba(8,16,50,0.28)]">
+              <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#eaeeff] text-[#2847d3]">
+                <Star className="h-4 w-4 fill-[#2847d3]" />
+              </span>
+              <div>
+                <p className="text-[15px] font-extrabold leading-none text-[#10204f]">8+</p>
+                <p className="mt-0.5 text-[11px] text-[#7a8198]">Open briefs</p>
+              </div>
             </div>
-          </div>
+          </Reveal>
         </div>
       </div>
     </section>

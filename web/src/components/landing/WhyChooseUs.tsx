@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { BadgeCheck, Lightbulb, Rocket, Target } from 'lucide-react';
+import { Reveal } from './Reveal';
 
 /** Soft blue gradient blob tucked into the top-right corner of each light card. */
 function CornerBlob() {
@@ -24,7 +25,7 @@ export function WhyChooseUs() {
   return (
     <section id="why" className="bg-white text-[#0b1020]">
       <div className="b-container b-container--wide py-20">
-        <div className="max-w-2xl">
+        <Reveal className="max-w-2xl">
           <span className="inline-block rounded-full bg-[#eaeeff] px-3.5 py-1.5 font-mono text-[12px] font-bold uppercase tracking-[0.12em] text-[#2847d3]">
             Why choose us
           </span>
@@ -34,11 +35,11 @@ export function WhyChooseUs() {
               It&apos;s not just talk.
             </span>
           </h2>
-        </div>
+        </Reveal>
 
         <div className="mt-12 grid gap-5 md:grid-cols-3">
           {/* A — Trusted (small) */}
-          <div className="relative overflow-hidden rounded-[20px] border border-[#ecedf4] bg-[#f6f7fb] p-7">
+          <Reveal className="relative overflow-hidden rounded-[20px] border border-[#ecedf4] bg-[#f6f7fb] p-7">
             <CornerBlob />
             <span className="relative flex h-11 w-11 items-center justify-center rounded-[13px] bg-[#eaeeff] text-[#2847d3]">
               <BadgeCheck className="h-5 w-5" />
@@ -50,10 +51,10 @@ export function WhyChooseUs() {
               Companies across Kigali — from cooperatives to startups — post real
               briefs and judge students on the work they actually deliver, not a CV.
             </p>
-          </div>
+          </Reveal>
 
           {/* B — Fast (small) */}
-          <div className="relative overflow-hidden rounded-[20px] border border-[#ecedf4] bg-[#f6f7fb] p-7">
+          <Reveal delay={110} className="relative overflow-hidden rounded-[20px] border border-[#ecedf4] bg-[#f6f7fb] p-7">
             <CornerBlob />
             <span className="relative flex h-11 w-11 items-center justify-center rounded-[13px] bg-[#eaeeff] text-[#2847d3]">
               <Rocket className="h-5 w-5" />
@@ -65,10 +66,12 @@ export function WhyChooseUs() {
               No screening marathons. Post a brief, review the deliverables that come
               in, score them, and invite the strongest to interview.
             </p>
-          </div>
+          </Reveal>
 
           {/* D — Scalable (accent, tall, right) */}
-          <div
+          <Reveal
+            variant="zoom"
+            delay={160}
             className="relative row-span-1 flex flex-col overflow-hidden rounded-[20px] p-7 text-white md:col-start-3 md:row-span-2"
             style={{
               background:
@@ -92,10 +95,10 @@ export function WhyChooseUs() {
             >
               Get started
             </Link>
-          </div>
+          </Reveal>
 
           {/* C — Quality (wide, bottom-left) */}
-          <div className="relative overflow-hidden rounded-[20px] border border-[#ecedf4] bg-[#f6f7fb] p-7 md:col-span-2 md:col-start-1 md:row-start-2">
+          <Reveal delay={80} className="relative overflow-hidden rounded-[20px] border border-[#ecedf4] bg-[#f6f7fb] p-7 md:col-span-2 md:col-start-1 md:row-start-2">
             <CornerBlob />
             <span className="relative flex h-11 w-11 items-center justify-center rounded-[13px] bg-[#eaeeff] text-[#2847d3]">
               <Target className="h-5 w-5" />
@@ -108,7 +111,7 @@ export function WhyChooseUs() {
               bounded deliverables from motivated students — concrete work you can
               assess side by side, so the decision is about substance, not polish.
             </p>
-          </div>
+          </Reveal>
         </div>
       </div>
     </section>

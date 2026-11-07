@@ -41,12 +41,14 @@ const FAQS: Array<{ q: string; a: string }> = [
   },
 ];
 
+import { Reveal } from './Reveal';
+
 /** Landing FAQ — two-column Q&A with "?" badges, matching the reference. */
 export function Faqs() {
   return (
     <section id="faqs" className="bg-[#f1f3fd] text-[#0b1020]">
       <div className="b-container b-container--wide py-20">
-        <div className="mx-auto max-w-3xl text-center">
+        <Reveal className="mx-auto max-w-3xl text-center">
           <span className="inline-block rounded-full bg-[#eaeeff] px-3.5 py-1.5 font-mono text-[12px] font-bold uppercase tracking-[0.12em] text-[#2847d3]">
             FAQs
           </span>
@@ -56,11 +58,11 @@ export function Faqs() {
             </span>{' '}
             We&apos;ve got answers!
           </h2>
-        </div>
+        </Reveal>
 
         <div className="mx-auto mt-14 grid max-w-5xl gap-x-12 gap-y-9 md:grid-cols-2">
-          {FAQS.map((f) => (
-            <div key={f.q} className="flex gap-4">
+          {FAQS.map((f, i) => (
+            <Reveal key={f.q} variant="fade" delay={(i % 2) * 90} className="flex gap-4">
               <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#eaeeff] text-[14px] font-bold text-[#2847d3]">
                 ?
               </span>
@@ -70,7 +72,7 @@ export function Faqs() {
                   {f.a}
                 </p>
               </div>
-            </div>
+            </Reveal>
           ))}
         </div>
 

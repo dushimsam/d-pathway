@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
+import { Reveal } from './Reveal';
 
 interface Brief {
   org: string;
@@ -64,7 +65,7 @@ export function OpenBriefs() {
   return (
     <section id="briefs" className="bg-white text-[#0b1020]">
       <div className="b-container b-container--wide py-20">
-        <div className="flex flex-wrap items-end justify-between gap-6">
+        <Reveal as="div" className="flex flex-wrap items-end justify-between gap-6">
           <div className="max-w-2xl">
             <span className="inline-block rounded-full bg-[#eaeeff] px-3.5 py-1.5 font-mono text-[12px] font-bold uppercase tracking-[0.12em] text-[#2847d3]">
               Open briefs
@@ -84,12 +85,13 @@ export function OpenBriefs() {
             Browse all briefs
             <ArrowRight className="h-4 w-4" />
           </Link>
-        </div>
+        </Reveal>
 
         <div className="mt-12 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-          {BRIEFS.map((b) => (
-            <div
+          {BRIEFS.map((b, i) => (
+            <Reveal
               key={`${b.org}-${b.title}`}
+              delay={(i % 3) * 110}
               className="flex flex-col rounded-[18px] border border-[#e7eaf4] bg-white p-6 shadow-[0_10px_30px_-20px_rgba(16,32,79,0.4)] transition-transform hover:-translate-y-1"
             >
               <div className="flex items-start justify-between gap-3">
@@ -139,7 +141,7 @@ export function OpenBriefs() {
                   View brief
                 </Link>
               </div>
-            </div>
+            </Reveal>
           ))}
         </div>
       </div>
