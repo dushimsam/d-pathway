@@ -5,7 +5,9 @@ import { getCurrentUserServer } from '@/lib/server-api';
 const NAV = [
   { href: '/dashboard', label: 'Dashboard' },
   { href: '/catalogue', label: 'Catalogue' },
+  { href: '/saved', label: 'Saved' },
   { href: '/applications', label: 'Applications' },
+  { href: '/profile', label: 'Profile' },
 ];
 
 export default async function GraduateLayout({

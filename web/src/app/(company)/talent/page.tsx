@@ -81,8 +81,13 @@ export default function TalentPage() {
               className="flex flex-col gap-3 rounded-[16px] border border-n300 bg-n0 p-5 transition-transform hover:-translate-y-1"
             >
               <div className="flex items-center gap-3">
-                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary-50 text-[15px] font-bold text-primary">
-                  {t.fullName.charAt(0)}
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary-50 text-[15px] font-bold text-primary">
+                  {t.photoUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={t.photoUrl} alt="" className="h-full w-full object-cover" />
+                  ) : (
+                    t.fullName.charAt(0)
+                  )}
                 </span>
                 <div className="min-w-0">
                   <p className="truncate text-[16px] font-semibold text-n900">{t.fullName}</p>

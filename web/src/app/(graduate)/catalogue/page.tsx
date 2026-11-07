@@ -15,7 +15,9 @@ import { EmptyState, ErrorState, Skeleton } from '@/components/ui/States';
 import { cn } from '@/lib/cn';
 import { api } from '@/lib/api-client';
 import { useMyApplications } from '@/lib/useMyApplications';
-import type { CatalogueCompany, Paginated, Project } from '@/lib/types';
+import { useSavedBriefs } from '@/lib/useSavedBriefs';
+import { BookmarkButton } from '@/components/BookmarkButton';
+import type { CatalogueCompany, GraduateProfile, Paginated, Project } from '@/lib/types';
 
 interface Filters {
   companyId?: string;
@@ -31,6 +33,14 @@ export default function CataloguePage() {
     queryKey: ['catalogue', 'companies'],
     queryFn: () => api.get<CatalogueCompany[]>('/catalogue/companies'),
   });
+
+  const meQuery = useQuery({
+    queryKey: ['graduate', 'me'],
+    queryFn: () => api.get<GraduateProfile>('/graduates/me'),
+  });
+  const mySkills = meQuery.data?.skills ?? [];
+
+  const { ids: savedIds } = useSavedBriefs();
 
   const params = new URLSearchParams();
   if (filters.companyId) params.set('companyId', filters.companyId);
@@ -58,6 +68,31 @@ export default function CataloguePage() {
         title="Project catalogue"
         description="Browse open projects from companies on D-Pathway."
       />
+
+      {mySkills.length > 0 && (
+        <div className="mb-3 flex flex-wrap items-center gap-2">
+          <span className="text-[13px] font-medium text-n500">Matching your skills:</span>
+          {mySkills.map((s) => {
+            const active = filters.skill === s;
+            return (
+              <button
+                key={s}
+                onClick={() =>
+                  setFilters((f) => ({ ...f, skill: active ? undefined : s }))
+                }
+                className={cn(
+                  'rounded-full px-3 py-1 text-[13px] transition-colors',
+                  active
+                    ? 'bg-primary text-white'
+                    : 'bg-primary-50 text-primary-dark hover:opacity-80',
+                )}
+              >
+                {s}
+              </button>
+            );
+          })}
+        </div>
+      )}
 
       <div className="mb-5 flex flex-wrap items-center gap-2">
         <form
@@ -181,18 +216,21 @@ export default function CataloguePage() {
                   )}
                 </div>
               )}
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between gap-2">
                 <Link
                   href={`/companies/${p.companyId}`}
-                  className="text-[12px] font-medium uppercase tracking-wide text-n500 hover:text-primary"
+                  className="truncate text-[12px] font-medium uppercase tracking-wide text-n500 hover:text-primary"
                 >
                   {p.company?.name ?? 'Organisation'}
                 </Link>
-                {p.prizeAmount != null && !p.coverImageUrl ? (
-                  <PrizeBadge amount={p.prizeAmount} currency={p.prizeCurrency} size="sm" />
-                ) : (
-                  <StatusPill status={p.status} />
-                )}
+                <div className="flex shrink-0 items-center gap-2">
+                  {p.prizeAmount != null && !p.coverImageUrl ? (
+                    <PrizeBadge amount={p.prizeAmount} currency={p.prizeCurrency} size="sm" />
+                  ) : (
+                    <StatusPill status={p.status} />
+                  )}
+                  <BookmarkButton projectId={p.id} saved={savedIds.has(p.id)} />
+                </div>
               </div>
               <h3 className="text-[18px] font-semibold text-n900">{p.title}</h3>
               <p className="line-clamp-2 text-[14px] text-n500">{p.brief}</p>

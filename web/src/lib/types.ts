@@ -190,7 +190,12 @@ export interface GraduateWallet {
 
 export type Wallet = CompanyWallet | GraduateWallet;
 export type TeamRole = 'LEAD' | 'MEMBER';
-export type ActivityType = 'DELIVERABLE_SUBMITTED' | 'EVALUATION_RECORDED';
+export type ActivityType =
+  | 'DELIVERABLE_SUBMITTED'
+  | 'EVALUATION_RECORDED'
+  | 'APPLICATION_ACCEPTED'
+  | 'APPLICATION_DECLINED'
+  | 'PRIZE_AWARDED';
 
 export interface EvaluationSummary {
   score: number;

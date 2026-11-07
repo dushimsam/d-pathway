@@ -70,8 +70,13 @@ export default function StudentProfilePage({
       {data && (
         <>
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-            <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-primary-50 text-[24px] font-bold text-primary">
-              {data.fullName.charAt(0)}
+            <span className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary-50 text-[24px] font-bold text-primary">
+              {data.photoUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={data.photoUrl} alt="" className="h-full w-full object-cover" />
+              ) : (
+                data.fullName.charAt(0)
+              )}
             </span>
             <div>
               <h1 className="text-[24px] font-bold text-n900">{data.fullName}</h1>

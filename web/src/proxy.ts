@@ -14,6 +14,7 @@ function requiredRole(pathname: string): Role | null {
   if (/^\/projects\/[^/]+$/.test(pathname)) return 'GRADUATE';
   if (pathname === '/catalogue' || pathname === '/dashboard') return 'GRADUATE';
   if (pathname === '/applications' || pathname === '/earnings') return 'GRADUATE';
+  if (pathname === '/saved' || pathname === '/profile') return 'GRADUATE';
   if (/^\/applications\/[^/]+\/submit$/.test(pathname)) return 'GRADUATE';
   if (pathname === '/wallet' || pathname === '/settings') return 'COMPANY';
   if (pathname === '/talent' || /^\/students\/[^/]+$/.test(pathname)) return 'COMPANY';

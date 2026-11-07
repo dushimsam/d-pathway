@@ -2,7 +2,14 @@
 
 import { formatDistanceToNow } from 'date-fns';
 import { useQuery } from '@tanstack/react-query';
-import { Activity as ActivityIcon, FileUp, Star } from 'lucide-react';
+import {
+  Activity as ActivityIcon,
+  Check,
+  FileUp,
+  Star,
+  Trophy,
+  X,
+} from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { api } from '@/lib/api-client';
 import type { ActivityItem } from '@/lib/types';
@@ -10,6 +17,9 @@ import type { ActivityItem } from '@/lib/types';
 const ICONS = {
   DELIVERABLE_SUBMITTED: FileUp,
   EVALUATION_RECORDED: Star,
+  APPLICATION_ACCEPTED: Check,
+  APPLICATION_DECLINED: X,
+  PRIZE_AWARDED: Trophy,
 } as const;
 
 /** Recent activity for the current user, written asynchronously by the worker. */
