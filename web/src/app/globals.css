@@ -54,6 +54,35 @@
 }
 
 /* ============================================================================
+   Light app theme — scoped to the authenticated Shell (`.app-light`).
+   Tailwind v4 utilities read `var(--color-*)` at the use site, so overriding
+   these custom properties on the Shell root re-themes every descendant that
+   uses the n-scale, without affecting the dark landing or auth pages.
+   ============================================================================ */
+.app-light {
+  /* surfaces & text (flipped from dark → light, matching the landing) */
+  --color-n0: #ffffff;    /* card / surface */
+  --color-n100: #f5f7ff;  /* page background / chips */
+  --color-n300: #e4e8f2;  /* borders */
+  --color-n500: #6c7384;  /* muted text */
+  --color-n700: #434a5d;  /* secondary text */
+  --color-n900: #0b1020;  /* primary text / ink */
+
+  /* brand — the landing's royal blue, readable on white */
+  --color-primary: #2847d3;
+  --color-primary-dark: #1d3fb0; /* hover + active nav / logo */
+  --color-primary-50: #eaeeff;   /* soft blue tint */
+
+  /* status — readable on light, with soft tinted backdrops */
+  --color-success: #15a34a;
+  --color-success-50: #e9f9ef;
+  --color-warning: #b45309;
+  --color-warning-50: #fdf4e7;
+  --color-danger: #dc2626;
+  --color-danger-50: #fdecec;
+}
+
+/* ============================================================================
    Brivon Design System Tokens & Classes
    ============================================================================ */
 :root {
@@ -1157,6 +1186,68 @@ body {
   }
 }
 
+/* ------------------------------------------------------------------ *
+ * Scroll reveal — subtle, professional on-scroll entrances.
+ * The hidden state is gated behind `html.js` so the page degrades to
+ * fully visible without JavaScript. The `.is-in` class is added by the
+ * <Reveal> component once the element scrolls into view.
+ * ------------------------------------------------------------------ */
+html.js [data-reveal] {
+  opacity: 0;
+  transform: translateY(26px);
+  transition:
+    opacity 900ms var(--ease-out),
+    transform 900ms var(--ease-out);
+  transition-delay: var(--reveal-delay, 0ms);
+  will-change: opacity, transform;
+}
+
+html.js [data-reveal='fade'] {
+  transform: none;
+}
+html.js [data-reveal='left'] {
+  transform: translateX(-32px);
+}
+html.js [data-reveal='right'] {
+  transform: translateX(32px);
+}
+html.js [data-reveal='zoom'] {
+  transform: scale(0.94);
+}
+
+/* The cut-out person drops in from above and settles with a gentle overshoot. */
+html.js [data-reveal='fall'] {
+  opacity: 0;
+  transform: translateY(-140px) rotate(-3deg);
+  transition:
+    opacity 900ms var(--ease-out),
+    transform 1400ms cubic-bezier(0.22, 1.12, 0.36, 1);
+  transition-delay: var(--reveal-delay, 0ms);
+  will-change: opacity, transform;
+}
+
+html.js [data-reveal].is-in {
+  opacity: 1;
+  transform: none;
+}
+
+/* Quiet, continuous life once an element has landed. */
+.idle-float {
+  animation: idle-float 7s var(--ease-out) infinite;
+}
+.idle-float--slow {
+  animation: idle-float 9s var(--ease-out) infinite;
+}
+@keyframes idle-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-7px);
+  }
+}
+
 /* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
   * {
@@ -1165,5 +1256,10 @@ body {
   }
   html {
     scroll-behavior: auto;
+  }
+  /* Never leave reveal content stuck in its hidden state. */
+  html.js [data-reveal] {
+    opacity: 1 !important;
+    transform: none !important;
   }
 }

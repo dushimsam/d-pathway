@@ -9,7 +9,7 @@ export type BadgeVariant =
   | 'info';
 
 const variants: Record<BadgeVariant, string> = {
-  neutral: 'bg-white/[0.08] text-n700',
+  neutral: 'bg-n100 text-n700',
   success: 'bg-success-50 text-success',
   warning: 'bg-warning-50 text-warning',
   danger: 'bg-danger-50 text-danger',

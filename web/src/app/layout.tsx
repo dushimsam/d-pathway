@@ -48,7 +48,20 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${ibmPlex.variable} ${spaceGrotesk.variable} ${ibmPlexMono.variable}`}>
+    <html
+      lang="en"
+      suppressHydrationWarning
+      className={`${ibmPlex.variable} ${spaceGrotesk.variable} ${ibmPlexMono.variable}`}
+    >
+      <head>
+        {/* Marks JS as available before paint so scroll-reveal hidden states
+            only apply when they can actually animate (no-JS = fully visible). */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: "document.documentElement.classList.add('js')",
+          }}
+        />
+      </head>
       <body>
         <QueryProvider>{children}</QueryProvider>
       </body>

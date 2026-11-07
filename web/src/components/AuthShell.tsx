@@ -14,23 +14,25 @@ export function AuthShell({
   footer?: ReactNode;
 }) {
   return (
-    <div className="flex min-h-screen bg-ink font-sans text-hi">
-      {/* ---------- Brand panel (desktop) ---------- */}
-      <aside className="relative hidden w-[46%] overflow-hidden border-r border-white/5 lg:flex lg:flex-col lg:justify-between lg:p-12">
+    <div className="app-light flex min-h-screen bg-white font-sans text-[#0b1020]">
+      {/* ---------- Brand panel (desktop) — navy gradient, matching the landing ---------- */}
+      <aside
+        className="relative hidden w-[46%] overflow-hidden text-white lg:flex lg:flex-col lg:justify-between lg:p-12"
+        style={{ background: 'linear-gradient(160deg, #0a1550 0%, #122a7a 55%, #2a56d6 100%)' }}
+      >
         <div
-          className="pointer-events-none absolute -left-20 -top-24 h-[480px] w-[480px] rounded-full opacity-60 blur-[120px]"
-          style={{ background: 'radial-gradient(closest-side, rgba(59,91,253,0.22), transparent)' }}
+          aria-hidden
+          className="pointer-events-none absolute -left-20 -top-24 h-[480px] w-[480px] rounded-full opacity-70 blur-[120px]"
+          style={{ background: 'radial-gradient(closest-side, rgba(90,150,255,0.45), transparent)' }}
         />
-        <Link href="/" className="relative font-display text-[22px] font-bold tracking-tight">
-          D<span className="text-teal">·</span>Pathway
+        <Link href="/" className="relative font-display text-[22px] font-bold tracking-tight text-white">
+          D<span className="text-[#8aa6ff]">·</span>Pathway
         </Link>
 
         <div className="relative">
-          <h2 className="font-display text-[30px] font-bold leading-tight tracking-tight">
+          <h2 className="font-display text-[30px] font-bold leading-tight tracking-tight text-white">
             Your work, not just your CV,{' '}
-            <span className="bg-gradient-to-r from-teal to-cyan bg-clip-text text-transparent">
-              opens the door.
-            </span>
+            <span className="text-[#8aa6ff]">opens the door.</span>
           </h2>
           <ul className="mt-8 flex flex-col gap-4">
             <Perk icon={<CheckCircle2 className="h-4 w-4" />} text="Real, bounded projects from Kigali organisations" />
@@ -39,27 +41,27 @@ export function AuthShell({
           </ul>
         </div>
 
-        <p className="relative text-[12px] text-dim">
+        <p className="relative text-[12px] text-white/70">
           For the Kigali graduate labour market · Data stays in Rwanda.
         </p>
       </aside>
 
-      {/* ---------- Form panel ---------- */}
-      <main className="flex flex-1 items-center justify-center p-6">
+      {/* ---------- Form panel — light ---------- */}
+      <main className="flex flex-1 items-center justify-center bg-[#f5f7ff] p-6">
         <div className="w-full max-w-md">
           <div className="mb-6 text-center lg:hidden">
-            <Link href="/" className="font-display text-[22px] font-bold tracking-tight text-hi">
-              D<span className="text-teal">·</span>Pathway
+            <Link href="/" className="font-display text-[22px] font-bold tracking-tight text-[#10204f]">
+              D<span className="text-[#2847d3]">·</span>Pathway
             </Link>
           </div>
 
-          <div className="rounded-[20px] border border-white/10 bg-n0 p-8 text-n900 shadow-2xl">
-            <h1 className="font-display text-[22px] font-bold tracking-tight text-n900">{title}</h1>
-            {subtitle && <p className="mt-1.5 text-[14px] text-n500">{subtitle}</p>}
+          <div className="rounded-[20px] border border-[#e7eaf4] bg-white p-8 text-[#0b1020] shadow-[0_18px_50px_-20px_rgba(16,32,79,0.25)]">
+            <h1 className="font-display text-[22px] font-bold tracking-tight text-[#10204f]">{title}</h1>
+            {subtitle && <p className="mt-1.5 text-[14px] text-[#5c6276]">{subtitle}</p>}
             <div className="mt-6">{children}</div>
           </div>
 
-          {footer && <p className="mt-5 text-center text-[14px] text-mid">{footer}</p>}
+          {footer && <p className="mt-5 text-center text-[14px] text-[#5c6276]">{footer}</p>}
         </div>
       </main>
     </div>
@@ -68,8 +70,8 @@ export function AuthShell({
 
 function Perk({ icon, text }: { icon: ReactNode; text: string }) {
   return (
-    <li className="flex items-center gap-3 text-[14px] text-mid">
-      <span className="flex h-7 w-7 items-center justify-center rounded-full border border-teal/30 bg-teal/10 text-teal">
+    <li className="flex items-center gap-3 text-[14px] text-white/85">
+      <span className="flex h-7 w-7 items-center justify-center rounded-full border border-white/20 bg-white/10 text-[#8aa6ff]">
         {icon}
       </span>
       {text}

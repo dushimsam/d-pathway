@@ -20,7 +20,7 @@ export function PrizeBadge({
   return (
     <span
       className={cn(
-        'inline-flex items-center gap-1.5 rounded-full bg-warning-50 font-semibold text-warning',
+        'inline-flex items-center gap-1.5 rounded-full bg-primary font-semibold text-white',
         size === 'sm' ? 'px-2.5 py-0.5 text-[12px]' : 'px-3 py-1 text-[14px]',
         className,
       )}
