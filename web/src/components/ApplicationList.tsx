@@ -6,10 +6,13 @@ import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { Card } from '@/components/ui/Card';
 import { StatusPill } from '@/components/ui/StatusPill';
+import { RateCompany } from '@/components/RateCompany';
+import { useMyReviews } from '@/lib/useMyReviews';
 import type { MyApplication } from '@/lib/types';
 
 /** The student's applications as a list of status-aware cards. */
 export function ApplicationList({ applications }: { applications: MyApplication[] }) {
+  const { byProjectId: reviewedByProject } = useMyReviews();
   return (
     <div className="flex flex-col gap-3">
       {applications.map((a) => (
@@ -17,7 +20,7 @@ export function ApplicationList({ applications }: { applications: MyApplication[
           <div className="flex items-start justify-between gap-4">
             <div className="flex items-start gap-3">
               {a.project.coverImageUrl && (
-                <div className="hidden h-12 w-16 shrink-0 overflow-hidden rounded-[8px] border border-white/10 sm:block">
+                <div className="hidden h-12 w-16 shrink-0 overflow-hidden rounded-[8px] border border-n300 sm:block">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={a.project.coverImageUrl} alt="" className="h-full w-full object-cover" />
                 </div>
@@ -77,6 +80,14 @@ export function ApplicationList({ applications }: { applications: MyApplication[
               </div>
               <p className="text-[14px] text-n700">{a.evaluation.feedback}</p>
             </div>
+          )}
+
+          {a.status === 'ACCEPTED' && (
+            <RateCompany
+              projectId={a.project.id}
+              companyName={a.project.company.name}
+              existingRating={reviewedByProject.get(a.project.id)}
+            />
           )}
         </Card>
       ))}
