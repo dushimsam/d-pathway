@@ -16,6 +16,7 @@ import { EmptyState, ErrorState, Skeleton } from '@/components/ui/States';
 import { TeamPanel } from '@/components/TeamPanel';
 import { cn } from '@/lib/cn';
 import { api, ApiError } from '@/lib/api-client';
+import { formatMoney } from '@/lib/money';
 import type { Project, QueueApplicant } from '@/lib/types';
 
 export default function ReviewQueuePage({
@@ -63,6 +64,18 @@ export default function ReviewQueuePage({
     onError: (e) =>
       setActionError(e instanceof ApiError ? e.message : 'Could not decline.'),
   });
+  const award = useMutation({
+    mutationFn: (graduateId: string) =>
+      api.post(`/projects/${id}/award`, { graduateId }),
+    onSuccess: () => {
+      setActionError(null);
+      queryClient.invalidateQueries({ queryKey: ['project', id] });
+      queryClient.invalidateQueries({ queryKey: ['project', id, 'applications'] });
+      queryClient.invalidateQueries({ queryKey: ['wallet'] });
+    },
+    onError: (e) =>
+      setActionError(e instanceof ApiError ? e.message : 'Could not award the prize.'),
+  });
 
   if (queueQuery.isLoading) {
     return (
@@ -85,11 +98,18 @@ export default function ReviewQueuePage({
         title="Review queue"
         description={projectQuery.data?.title}
         action={
-          <Link href="/projects">
-            <Button variant="ghost" size="sm">
-              ← Projects
-            </Button>
-          </Link>
+          <div className="flex gap-2">
+            <Link href={`/projects/${id}/board`}>
+              <Button variant="secondary" size="sm">
+                Board view
+              </Button>
+            </Link>
+            <Link href="/projects">
+              <Button variant="ghost" size="sm">
+                ← Projects
+              </Button>
+            </Link>
+          </div>
         }
       />
 
@@ -201,6 +221,43 @@ export default function ReviewQueuePage({
               )}
 
               {actionError && <p className="text-[14px] text-danger">{actionError}</p>}
+
+              {projectQuery.data?.prizeAmount != null && (
+                <div className="border-t border-n100 pt-4">
+                  {projectQuery.data.prizeStatus === 'RELEASED' ? (
+                    <p className="rounded-[8px] bg-success-50 p-3 text-[14px] text-success">
+                      🏆 Prize of{' '}
+                      {formatMoney(
+                        projectQuery.data.prizeAmount,
+                        projectQuery.data.prizeCurrency ?? 'rwf',
+                      )}{' '}
+                      awarded
+                      {projectQuery.data.winnerGraduateId === selected.graduate.id
+                        ? ' to this student.'
+                        : ' to another student.'}
+                    </p>
+                  ) : selected.status === 'ACCEPTED' &&
+                    projectQuery.data.prizeStatus === 'HELD' ? (
+                    <div className="flex items-center justify-between gap-4">
+                      <p className="text-[12px] text-n500">
+                        Completing the project awards the{' '}
+                        {formatMoney(
+                          projectQuery.data.prizeAmount,
+                          projectQuery.data.prizeCurrency ?? 'rwf',
+                        )}{' '}
+                        prize to this student.
+                      </p>
+                      <Button
+                        size="sm"
+                        disabled={award.isPending}
+                        onClick={() => award.mutate(selected.graduate.id)}
+                      >
+                        {award.isPending ? 'Awarding…' : 'Award prize & complete'}
+                      </Button>
+                    </div>
+                  ) : null}
+                </div>
+              )}
 
               {selected.status === 'PENDING' && (
                 <div className="border-t border-n100 pt-4">

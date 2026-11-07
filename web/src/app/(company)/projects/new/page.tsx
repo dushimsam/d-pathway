@@ -18,7 +18,9 @@ import { Skeleton } from '@/components/ui/States';
 import { api, ApiError } from '@/lib/api-client';
 import { uploadToCloudinary } from '@/lib/cloudinary';
 import { projectSchema, countWords, IP_TERMS_MAX_WORDS } from '@/lib/schemas';
+import { formatMoney } from '@/lib/money';
 import { cn } from '@/lib/cn';
+import type { CompanyWallet } from '@/lib/types';
 import type { Project, SignedUpload } from '@/lib/types';
 
 const STATUSES = ['DRAFT', 'OPEN', 'IN_PROGRESS', 'CLOSED'] as const;
@@ -61,6 +63,12 @@ function ProjectBuilder() {
     enabled: Boolean(editId),
   });
 
+  // Available balance to fund a prize (the brief escrows it on save).
+  const wallet = useQuery({
+    queryKey: ['wallet'],
+    queryFn: () => api.get<CompanyWallet>('/wallet'),
+  });
+
   useEffect(() => {
     const p = existing.data;
     if (!p) return;
@@ -98,6 +106,12 @@ function ProjectBuilder() {
 
   const locked = status !== 'DRAFT';
   const ipTermsWords = countWords(ipTerms);
+
+  // Editing a draft re-escrows, so its current hold is available again.
+  const heldHere =
+    existing.data?.prizeStatus === 'HELD' ? existing.data.prizeAmount ?? 0 : 0;
+  const availableToFund = (wallet.data?.balance ?? 0) + heldHere;
+  const prizeExceedsBalance = (Number(prizeAmount) || 0) > availableToFund;
 
   function collect() {
     const trimmedPrize = prizeAmount.trim();
@@ -278,7 +292,7 @@ function ProjectBuilder() {
                 type="button"
                 disabled={locked || coverPct !== null}
                 onClick={() => coverRef.current?.click()}
-                className="flex h-40 w-full flex-col items-center justify-center gap-2 rounded-[12px] border border-dashed border-n300 bg-white/[0.02] text-n500 transition-colors hover:border-primary hover:text-n700 disabled:opacity-60"
+                className="flex h-40 w-full flex-col items-center justify-center gap-2 rounded-[12px] border border-dashed border-n300 bg-n100 text-n500 transition-colors hover:border-primary hover:text-n700 disabled:opacity-60"
               >
                 {coverPct !== null ? (
                   <span className="flex items-center gap-2 text-[14px]">
@@ -319,7 +333,7 @@ function ProjectBuilder() {
               placeholder="Type a skill and press Enter…"
             />
           </Field>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <Field label="Application deadline" htmlFor="appDeadline" error={errors.applicationDeadline}>
               <Input
                 id="appDeadline"
@@ -378,6 +392,26 @@ function ProjectBuilder() {
                 onChange={(e) => setPrizeAmount(e.target.value)}
               />
             </div>
+            {wallet.data && (
+              <div className="mt-1.5 flex items-center justify-between text-[12px]">
+                <span className="text-n500">
+                  Available to fund:{' '}
+                  {formatMoney(availableToFund, wallet.data.currency)}
+                </span>
+                {prizeExceedsBalance ? (
+                  <span className="font-medium text-danger">
+                    Over balance —{' '}
+                    <Link href="/wallet" className="underline">
+                      top up
+                    </Link>
+                  </span>
+                ) : (
+                  <Link href="/wallet" className="text-primary hover:underline">
+                    Top up
+                  </Link>
+                )}
+              </div>
+            )}
           </Field>
           <Field label="IP terms" htmlFor="ipTerms" error={errors.ipTerms} hint="Shown to the graduate before they apply.">
             <Textarea

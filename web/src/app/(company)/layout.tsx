@@ -4,7 +4,8 @@ import { getCurrentUserServer } from '@/lib/server-api';
 
 const NAV = [
   { href: '/projects', label: 'Projects' },
-  { href: '/projects/new', label: 'New project' },
+  { href: '/talent', label: 'Talent' },
+  { href: '/settings', label: 'Settings' },
 ];
 
 export default async function CompanyLayout({

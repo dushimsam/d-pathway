@@ -182,9 +182,12 @@ export default function CataloguePage() {
                 </div>
               )}
               <div className="flex items-center justify-between">
-                <span className="text-[12px] font-medium uppercase tracking-wide text-n500">
+                <Link
+                  href={`/companies/${p.companyId}`}
+                  className="text-[12px] font-medium uppercase tracking-wide text-n500 hover:text-primary"
+                >
                   {p.company?.name ?? 'Organisation'}
-                </span>
+                </Link>
                 {p.prizeAmount != null && !p.coverImageUrl ? (
                   <PrizeBadge amount={p.prizeAmount} currency={p.prizeCurrency} size="sm" />
                 ) : (

@@ -85,7 +85,7 @@ export default function CompanyHomePage() {
         }
       />
 
-      <div className="mb-6 grid grid-cols-3 gap-4">
+      <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
         {STAT_CARDS.map((c) => (
           <Card key={c.key} className="text-center">
             <p className="text-[24px] font-semibold text-n900">
