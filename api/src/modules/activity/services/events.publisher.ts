@@ -20,6 +20,25 @@ export interface EvaluationRecordedEvent {
   outcome: string;
 }
 
+export interface ApplicationDecidedEvent {
+  graduateId: string;
+  companyId: string;
+  companyName: string;
+  projectId: string;
+  projectTitle: string;
+  accepted: boolean;
+  declineReason?: string | null;
+}
+
+export interface PrizeAwardedEvent {
+  graduateId: string;
+  companyName: string;
+  projectId: string;
+  projectTitle: string;
+  amount: number;
+  currency: string;
+}
+
 const JOB_OPTS = {
   attempts: 3,
   backoff: { type: 'exponential' as const, delay: 1000 },
@@ -41,5 +60,13 @@ export class EventsPublisher {
 
   evaluationRecorded(payload: EvaluationRecordedEvent) {
     return this.queue.add('evaluation.recorded', payload, JOB_OPTS);
+  }
+
+  applicationDecided(payload: ApplicationDecidedEvent) {
+    return this.queue.add('application.decided', payload, JOB_OPTS);
+  }
+
+  prizeAwarded(payload: PrizeAwardedEvent) {
+    return this.queue.add('prize.awarded', payload, JOB_OPTS);
   }
 }

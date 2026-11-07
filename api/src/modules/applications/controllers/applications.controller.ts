@@ -48,6 +48,15 @@ export class ApplicationsController {
   }
 
   @Roles(UserRole.COMPANY)
+  @Get('projects/:id/board')
+  board(
+    @CurrentUser() user: AuthUser,
+    @Param('id', ParseUUIDPipe) projectId: string,
+  ) {
+    return this.applications.board(user.id, projectId);
+  }
+
+  @Roles(UserRole.COMPANY)
   @HttpCode(HttpStatus.OK)
   @Post('applications/:id/accept')
   accept(

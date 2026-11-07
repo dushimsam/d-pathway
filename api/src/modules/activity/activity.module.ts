@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { EVENTS_QUEUE } from '../../redis/redis.constants.js';
 import { CompaniesModule } from '../companies/companies.module.js';
 import { GraduatesModule } from '../graduates/graduates.module.js';
+import { MailModule } from '../mail/mail.module.js';
 import { Activity } from './entities/activity.entity.js';
 import { ActivityController } from './controllers/activity.controller.js';
 import { ActivityService } from './services/activity.service.js';
@@ -16,6 +17,7 @@ import { EventsPublisher } from './services/events.publisher.js';
     BullModule.registerQueue({ name: EVENTS_QUEUE }),
     CompaniesModule,
     GraduatesModule,
+    MailModule,
   ],
   controllers: [ActivityController],
   providers: [ActivityService, ActivityProcessor, EventsPublisher],

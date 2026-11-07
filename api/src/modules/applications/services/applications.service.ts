@@ -9,6 +9,7 @@ import { ApplicationStatus, MembershipStatus } from '../../../common/enums/index
 import { GraduatesService } from '../../graduates/services/graduates.service.js';
 import { CompaniesService } from '../../companies/services/companies.service.js';
 import { ProjectsService } from '../../projects/services/projects.service.js';
+import { EventsPublisher } from '../../activity/services/events.publisher.js';
 import { Deliverable } from '../../deliverables/entities/deliverable.entity.js';
 import { Evaluation } from '../../evaluations/entities/evaluation.entity.js';
 import { Application } from '../entities/application.entity.js';
@@ -38,6 +39,7 @@ export class ApplicationsService {
     private readonly graduates: GraduatesService,
     private readonly companies: CompaniesService,
     private readonly projects: ProjectsService,
+    private readonly events: EventsPublisher,
   ) {}
 
   async apply(userId: string, projectId: string, dto: ApplyDto): Promise<Application> {
@@ -176,6 +178,102 @@ export class ApplicationsService {
     }));
   }
 
+  /**
+   * The ATS pipeline board for one project: every applicant annotated with the
+   * stage they're at, derived from the lifecycle (application → deliverable →
+   * evaluation → award). No extra state to maintain — the existing accept /
+   * decline / evaluate / award actions move candidates between columns.
+   */
+  async board(userId: string, projectId: string): Promise<unknown> {
+    const company = await this.companies.getByUserIdOrThrow(userId);
+    const project = await this.projects.findByIdOrThrow(projectId);
+    this.projects.assertOwnedByCompany(project, company.id);
+
+    const apps = await this.applications.find({
+      where: { projectId },
+      relations: { graduate: true },
+      order: { createdAt: 'ASC' },
+    });
+    const appIds = apps.map((a) => a.id);
+    const deliverables = appIds.length
+      ? await this.deliverables.find({ where: { applicationId: In(appIds) } })
+      : [];
+    const deliverableByApp = new Map(
+      deliverables.map((d) => [d.applicationId, d]),
+    );
+    const evalByDeliverable = deliverables.length
+      ? new Map(
+          (
+            await this.evaluations.find({
+              where: { deliverableId: In(deliverables.map((d) => d.id)) },
+            })
+          ).map((e) => [e.deliverableId, e]),
+        )
+      : new Map<string, Evaluation>();
+
+    const candidates = apps.map((a) => {
+      const deliverable = deliverableByApp.get(a.id) ?? null;
+      const evaluation = deliverable
+        ? evalByDeliverable.get(deliverable.id) ?? null
+        : null;
+      const isWinner = project.winnerGraduateId === a.graduateId;
+
+      let stage: string;
+      if (a.status === ApplicationStatus.DECLINED) stage = 'declined';
+      else if (isWinner) stage = 'awarded';
+      else if (evaluation) stage = 'evaluated';
+      else if (a.status === ApplicationStatus.ACCEPTED && deliverable)
+        stage = 'submitted';
+      else if (a.status === ApplicationStatus.ACCEPTED) stage = 'accepted';
+      else stage = 'applied';
+
+      return {
+        id: a.id,
+        stage,
+        status: a.status,
+        note: a.note,
+        declineReason: a.declineReason,
+        createdAt: a.createdAt,
+        isWinner,
+        graduate: {
+          id: a.graduate.id,
+          fullName: a.graduate.fullName,
+          education: a.graduate.education,
+          skills: a.graduate.skills,
+          location: a.graduate.location,
+        },
+        deliverable: deliverable
+          ? {
+              id: deliverable.id,
+              submittedAt: deliverable.submittedAt,
+              version: deliverable.version,
+            }
+          : null,
+        evaluation: evaluation
+          ? {
+              score: evaluation.score,
+              outcome: evaluation.outcome,
+              stale: evaluation.stale,
+            }
+          : null,
+      };
+    });
+
+    return {
+      project: {
+        id: project.id,
+        title: project.title,
+        status: project.status,
+        prizeStatus: project.prizeStatus,
+        prizeAmount: project.prizeAmount,
+        prizeCurrency: project.prizeCurrency,
+        winnerGraduateId: project.winnerGraduateId,
+        submissionDeadline: project.submissionDeadline,
+      },
+      candidates,
+    };
+  }
+
   async accept(userId: string, applicationId: string): Promise<Application> {
     const { application, companyId } =
       await this.loadForOwningCompany(userId, applicationId);
@@ -187,7 +285,16 @@ export class ApplicationsService {
     void companyId;
     application.status = ApplicationStatus.ACCEPTED;
     application.decidedAt = new Date(); // A7
-    return this.applications.save(application);
+    const saved = await this.applications.save(application);
+    await this.events.applicationDecided({
+      graduateId: application.graduateId,
+      companyId: application.project.companyId,
+      companyName: application.project.company.name,
+      projectId: application.projectId,
+      projectTitle: application.project.title,
+      accepted: true,
+    });
+    return saved;
   }
 
   async decline(
@@ -201,7 +308,17 @@ export class ApplicationsService {
     application.status = ApplicationStatus.DECLINED;
     application.declineReason = reason.trim();
     application.decidedAt = new Date(); // A7
-    return this.applications.save(application);
+    const saved = await this.applications.save(application);
+    await this.events.applicationDecided({
+      graduateId: application.graduateId,
+      companyId: application.project.companyId,
+      companyName: application.project.company.name,
+      projectId: application.projectId,
+      projectTitle: application.project.title,
+      accepted: false,
+      declineReason: application.declineReason,
+    });
+    return saved;
   }
 
   // ---- helpers used by this and other modules ----

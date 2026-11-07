@@ -3,6 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { GraduatesModule } from '../graduates/graduates.module.js';
 import { CompaniesModule } from '../companies/companies.module.js';
 import { ProjectsModule } from '../projects/projects.module.js';
+import { ActivityModule } from '../activity/activity.module.js';
 import { Deliverable } from '../deliverables/entities/deliverable.entity.js';
 import { Evaluation } from '../evaluations/entities/evaluation.entity.js';
 import { Application } from './entities/application.entity.js';
@@ -23,6 +24,7 @@ import { MembershipsController } from './controllers/memberships.controller.js';
     GraduatesModule,
     CompaniesModule,
     ProjectsModule,
+    ActivityModule,
   ],
   controllers: [ApplicationsController, MembershipsController],
   providers: [ApplicationsService, MembershipsService],
