@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Post } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Public } from '../../../common/decorators/public.decorator.js';
 import { CurrentUser, type AuthUser } from '../../../common/decorators/current-user.decorator.js';
@@ -6,6 +6,8 @@ import { AuthService } from '../services/auth.service.js';
 import { RegisterGraduateDto } from '../dto/register-graduate.dto.js';
 import { RegisterCompanyDto } from '../dto/register-company.dto.js';
 import { LoginDto } from '../dto/login.dto.js';
+import { ChangePasswordDto } from '../dto/change-password.dto.js';
+import { DeleteAccountDto } from '../dto/delete-account.dto.js';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -36,4 +38,19 @@ export class AuthController {
   me(@CurrentUser() user: AuthUser) {
     return this.auth.me(user.id);
   }
+
+  @ApiBearerAuth()
+  @HttpCode(HttpStatus.OK)
+  @Post('change-password')
+  changePassword(@CurrentUser() user: AuthUser, @Body() dto: ChangePasswordDto) {
+    return this.auth.changePassword(user.id, dto.currentPassword, dto.newPassword);
+  }
+
+  @ApiBearerAuth()
+  @HttpCode(HttpStatus.OK)
+  @Delete('me')
+  deleteAccount(@CurrentUser() user: AuthUser, @Body() dto: DeleteAccountDto) {
+    return this.auth.deleteAccount(user.id, dto.password);
+  }
 }
+

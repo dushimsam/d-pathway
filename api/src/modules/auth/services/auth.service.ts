@@ -143,6 +143,32 @@ export class AuthService {
     };
   }
 
+  async changePassword(
+    userId: string,
+    currentPassword: string,
+    newPassword: string,
+  ): Promise<{ ok: true }> {
+    const user = await this.users.findOne({ where: { id: userId } });
+    if (!user) throw new UnauthorizedException();
+    if (!(await bcrypt.compare(currentPassword, user.passwordHash))) {
+      throw new UnauthorizedException('Your current password is incorrect.');
+    }
+    user.passwordHash = await bcrypt.hash(newPassword, BCRYPT_COST);
+    await this.users.save(user);
+    return { ok: true };
+  }
+
+  /** Permanently delete the account; cascades remove the profile and its data. */
+  async deleteAccount(userId: string, password: string): Promise<{ ok: true }> {
+    const user = await this.users.findOne({ where: { id: userId } });
+    if (!user) throw new UnauthorizedException();
+    if (!(await bcrypt.compare(password, user.passwordHash))) {
+      throw new UnauthorizedException('Your password is incorrect.');
+    }
+    await this.users.delete(user.id);
+    return { ok: true };
+  }
+
   private async assertEmailFree(email: string): Promise<void> {
     const existing = await this.users.findOne({ where: { email } });
     if (existing) {
