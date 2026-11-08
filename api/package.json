@@ -18,7 +18,8 @@
     "migration:generate": "npm run typeorm -- migration:generate",
     "migration:run": "npm run typeorm -- migration:run",
     "migration:revert": "npm run typeorm -- migration:revert",
-    "seed": "node --loader ts-node/esm src/database/seeds/run.ts"
+    "seed": "node --loader ts-node/esm src/database/seeds/run.ts",
+    "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
     "@nestjs/bullmq": "12.0.0",
