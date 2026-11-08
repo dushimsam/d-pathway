@@ -4,6 +4,8 @@ A web platform connecting Kigali-based graduates with companies and community or
 
 📄 **[Technical Report (PDF)](https://drive.google.com/file/d/1Vhu0t3mNvAq2R8jNUVhVfqxT1qyo4S5u/view?usp=sharing)** — scope alignment, technical functionality, testing approaches & results, and code-quality practices.
 
+🎥 **[Demo Walkthrough (Video)](https://www.veed.io/view/e2e22f2b-5cdd-4fd4-83c6-d5fff3f8e845?source=Dashboard&panel=share)** — product demonstration of the core features and technical functionality.
+
 ## Monorepo
 
 | Path | Stack | What it is |
