@@ -2,6 +2,8 @@
 
 A web platform connecting Kigali-based graduates with companies and community organisations through real-world projects that help graduates demonstrate their skills and earn interview opportunities.
 
+📄 **[Technical Report (PDF)](https://drive.google.com/file/d/1Vhu0t3mNvAq2R8jNUVhVfqxT1qyo4S5u/view?usp=sharing)** — scope alignment, technical functionality, testing approaches & results, and code-quality practices.
+
 ## Monorepo
 
 | Path | Stack | What it is |
