@@ -149,3 +149,5 @@ CREDENTIALS.local.md
 references/
 # macOS
 .DS_Store
+
+AGENTS.md

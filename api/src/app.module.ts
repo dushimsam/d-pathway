@@ -35,6 +35,27 @@ import { ReviewsModule } from './modules/reviews/reviews.module.js';
           transport: config.isProduction
             ? undefined
             : { target: 'pino-pretty', options: { singleLine: true } },
+          // Log only what's useful — never the headers, which carry the JWT and
+          // cookies. These serializers replace pino's verbose defaults.
+          serializers: {
+            req: (req: { id: unknown; method: string; url: string }) => ({
+              id: req.id,
+              method: req.method,
+              url: req.url,
+            }),
+            res: (res: { statusCode: number }) => ({
+              statusCode: res.statusCode,
+            }),
+          },
+          // Belt and braces: if any header ever slips through, strip the secrets.
+          redact: {
+            paths: [
+              'req.headers.authorization',
+              'req.headers.cookie',
+              'res.headers["set-cookie"]',
+            ],
+            remove: true,
+          },
         },
       }),
     }),
