@@ -23,7 +23,7 @@ docker compose up -d          # Postgres 16 on 127.0.0.1:5432
 npm ci
 npm run migration:run
 npm run seed                  # 3 organisations, 1 graduate, sample projects
-npm run start:dev             # API on :3001, Swagger at /docs
+npm run dev                   # API on :3001, Swagger at /docs
 
 # 2. Web (new shell)
 cd ../web

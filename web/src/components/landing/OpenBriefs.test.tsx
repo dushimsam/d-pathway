@@ -6,9 +6,9 @@ describe('OpenBriefs', () => {
   it('renders the showcase briefs with prizes and open badges', () => {
     render(<OpenBriefs />);
     expect(screen.getByText('Community events landing page')).toBeInTheDocument();
-    expect(screen.getByText('Internal metrics dashboard')).toBeInTheDocument();
+    expect(screen.getByText('Logo & brand kit')).toBeInTheDocument();
     // a brief with a prize
-    expect(screen.getByText('RWF 150,000')).toBeInTheDocument();
+    expect(screen.getByText('RWF 50,000')).toBeInTheDocument();
     // a brief without a prize shows "Open"
     expect(screen.getAllByText('Open').length).toBeGreaterThan(0);
   });
