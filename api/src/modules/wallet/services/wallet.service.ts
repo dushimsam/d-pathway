@@ -9,6 +9,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, EntityManager, Repository } from 'typeorm';
 import {
   PrizeStatus,
+  UserRole,
   WalletOwnerType,
   WalletTxnType,
 } from '../../../common/enums/index.js';
@@ -107,7 +108,7 @@ export class WalletService {
   // ---------- reads ----------
 
   async getWallet(user: { id: string; role: string }): Promise<unknown> {
-    if (user.role === 'COMPANY') {
+    if (user.role === UserRole.COMPANY) {
       const company = await this.companies.findOne({ where: { userId: user.id } });
       if (!company) throw new NotFoundException('Company profile not found.');
       const row = await this.projects
@@ -117,7 +118,7 @@ export class WalletService {
         .andWhere('p.prize_status = :s', { s: PrizeStatus.HELD })
         .getRawOne<{ sum: string }>();
       return {
-        role: 'COMPANY',
+        role: UserRole.COMPANY,
         currency: this.stripe.currency,
         balance: company.balance,
         reserved: Number(row?.sum ?? 0),
@@ -127,7 +128,7 @@ export class WalletService {
     const grad = await this.graduates.findOne({ where: { userId: user.id } });
     if (!grad) throw new NotFoundException('Student profile not found.');
     return {
-      role: 'GRADUATE',
+      role: UserRole.GRADUATE,
       currency: this.stripe.currency,
       balance: grad.balance,
       transactions: await this.ledger(WalletOwnerType.GRADUATE, grad.id),

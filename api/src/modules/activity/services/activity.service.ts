@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { ActivityType } from '../../../common/enums/index.js';
+import { ActivityType, UserRole } from '../../../common/enums/index.js';
 import { CompaniesService } from '../../companies/services/companies.service.js';
 import { GraduatesService } from '../../graduates/services/graduates.service.js';
 import { Activity } from '../entities/activity.entity.js';
@@ -39,7 +39,7 @@ export class ActivityService {
 
   /** Role-aware feed: a company sees its own activity, a graduate theirs. */
   async feedForUser(user: { id: string; role: string }): Promise<Activity[]> {
-    if (user.role === 'COMPANY') {
+    if (user.role === UserRole.COMPANY) {
       const company = await this.companies.getByUserIdOrThrow(user.id);
       return this.activities.find({
         where: { companyId: company.id },

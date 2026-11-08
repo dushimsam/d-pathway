@@ -13,6 +13,10 @@ A web platform connecting Kigali-based graduates with companies and community or
 
 Each has its own README with setup, structure, and conventions.
 
+## Requirements
+
+Node 24+ · npm · Docker (for Postgres). That's all — the API and web each run with `npm`.
+
 ## Run it locally
 
 ```bash

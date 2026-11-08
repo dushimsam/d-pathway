@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
-import { ApplicationStatus, MembershipStatus } from '../../../common/enums/index.js';
+import { ApplicationStatus, BoardStage, MembershipStatus } from '../../../common/enums/index.js';
 import { GraduatesService } from '../../graduates/services/graduates.service.js';
 import { CompaniesService } from '../../companies/services/companies.service.js';
 import { ProjectsService } from '../../projects/services/projects.service.js';
@@ -218,14 +218,14 @@ export class ApplicationsService {
         : null;
       const isWinner = project.winnerGraduateId === a.graduateId;
 
-      let stage: string;
-      if (a.status === ApplicationStatus.DECLINED) stage = 'declined';
-      else if (isWinner) stage = 'awarded';
-      else if (evaluation) stage = 'evaluated';
+      let stage: BoardStage;
+      if (a.status === ApplicationStatus.DECLINED) stage = BoardStage.DECLINED;
+      else if (isWinner) stage = BoardStage.AWARDED;
+      else if (evaluation) stage = BoardStage.EVALUATED;
       else if (a.status === ApplicationStatus.ACCEPTED && deliverable)
-        stage = 'submitted';
-      else if (a.status === ApplicationStatus.ACCEPTED) stage = 'accepted';
-      else stage = 'applied';
+        stage = BoardStage.SUBMITTED;
+      else if (a.status === ApplicationStatus.ACCEPTED) stage = BoardStage.ACCEPTED;
+      else stage = BoardStage.APPLIED;
 
       return {
         id: a.id,

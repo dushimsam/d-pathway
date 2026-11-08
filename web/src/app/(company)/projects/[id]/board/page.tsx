@@ -10,14 +10,15 @@ import { Badge } from '@/components/ui/Badge';
 import { ErrorState, Skeleton } from '@/components/ui/States';
 import { api, ApiError } from '@/lib/api-client';
 import { formatMoney } from '@/lib/money';
-import type { BoardCandidate, BoardStage, ProjectBoard } from '@/lib/types';
+import { BoardStage } from '@/lib/types';
+import type { BoardCandidate, ProjectBoard } from '@/lib/types';
 
 const COLUMNS: Array<{ key: BoardStage; label: string; hint: string }> = [
-  { key: 'applied', label: 'Applied', hint: 'New applicants' },
-  { key: 'accepted', label: 'Accepted', hint: 'Awaiting deliverable' },
-  { key: 'submitted', label: 'Submitted', hint: 'Ready to review' },
-  { key: 'evaluated', label: 'Evaluated', hint: 'Scored' },
-  { key: 'awarded', label: 'Winner', hint: 'Prize released' },
+  { key: BoardStage.Applied, label: 'Applied', hint: 'New applicants' },
+  { key: BoardStage.Accepted, label: 'Accepted', hint: 'Awaiting deliverable' },
+  { key: BoardStage.Submitted, label: 'Submitted', hint: 'Ready to review' },
+  { key: BoardStage.Evaluated, label: 'Evaluated', hint: 'Scored' },
+  { key: BoardStage.Awarded, label: 'Winner', hint: 'Prize released' },
 ];
 
 export default function ProjectBoardPage({
@@ -75,7 +76,7 @@ export default function ProjectBoardPage({
   const { project, candidates } = data;
   const prizeHeld = project.prizeStatus === 'HELD' && project.prizeAmount != null;
   const byStage = (stage: BoardStage) => candidates.filter((c) => c.stage === stage);
-  const declined = byStage('declined');
+  const declined = byStage(BoardStage.Declined);
 
   function Card({ c }: { c: BoardCandidate }) {
     return (
@@ -111,7 +112,7 @@ export default function ProjectBoardPage({
         )}
 
         {/* Stage-specific actions */}
-        {c.stage === 'applied' && (
+        {c.stage === BoardStage.Applied && (
           decliningId === c.id ? (
             <div className="flex flex-col gap-2">
               <textarea
@@ -136,17 +137,17 @@ export default function ProjectBoardPage({
           )
         )}
 
-        {c.stage === 'accepted' && (
+        {c.stage === BoardStage.Accepted && (
           <p className="text-[12px] text-n500">Waiting on their deliverable.</p>
         )}
 
-        {c.stage === 'submitted' && c.deliverable && (
+        {c.stage === BoardStage.Submitted && c.deliverable && (
           <Link href={`/deliverables/${c.deliverable.id}/evaluate`}>
             <Button size="sm">Review deliverable</Button>
           </Link>
         )}
 
-        {c.stage === 'evaluated' && (
+        {c.stage === BoardStage.Evaluated && (
           <div className="flex flex-col gap-1.5">
             {c.deliverable && (
               <Link href={`/deliverables/${c.deliverable.id}/evaluate`}
@@ -164,7 +165,7 @@ export default function ProjectBoardPage({
           </div>
         )}
 
-        {c.stage === 'awarded' && (
+        {c.stage === BoardStage.Awarded && (
           <span className="inline-flex items-center gap-1 text-[13px] font-semibold text-primary">
             <Trophy className="h-4 w-4" />
             Winner

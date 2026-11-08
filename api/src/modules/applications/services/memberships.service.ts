@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Not, Repository } from 'typeorm';
-import { ApplicationStatus, MembershipStatus } from '../../../common/enums/index.js';
+import { ApplicationStatus, MembershipStatus, UserRole } from '../../../common/enums/index.js';
 import { GraduatesService } from '../../graduates/services/graduates.service.js';
 import { Application } from '../entities/application.entity.js';
 import { ApplicationMembership } from '../entities/application-membership.entity.js';
@@ -204,7 +204,7 @@ export class MembershipsService {
     user: { id: string; role: string },
     application: Application,
   ): Promise<void> {
-    if (user.role === 'COMPANY') {
+    if (user.role === UserRole.COMPANY) {
       const owns = await this.applications.findOne({
         where: { id: application.id },
         relations: { project: { company: true } },

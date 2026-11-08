@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { QueryFailedError, Repository } from 'typeorm';
+import { UserRole } from '../../../common/enums/index.js';
 import { CompaniesService } from '../../companies/services/companies.service.js';
 import { DeliverablesService } from '../../deliverables/services/deliverables.service.js';
 import { EventsPublisher } from '../../activity/services/events.publisher.js';
@@ -120,7 +121,7 @@ export class EvaluationsService {
     const deliverable: Deliverable =
       await this.deliverables.getByIdWithChain(deliverableId);
 
-    if (user.role === 'COMPANY') {
+    if (user.role === UserRole.COMPANY) {
       const company = await this.companies.getByUserIdOrThrow(user.id);
       if (deliverable.application.project.companyId !== company.id) {
         throw new ForbiddenException('You do not own this deliverable.');

@@ -1,7 +1,10 @@
 // Types mirroring the D-Pathway API responses. Kept in step with the backend
 // DTOs; the Zod schemas in schemas.ts mirror the write shapes field for field.
 
-export type UserRole = 'GRADUATE' | 'COMPANY';
+export enum UserRole {
+  GRADUATE = 'GRADUATE',
+  COMPANY = 'COMPANY',
+}
 export type ProjectStatus = 'DRAFT' | 'OPEN' | 'IN_PROGRESS' | 'CLOSED';
 export type ApplicationStatus = 'PENDING' | 'ACCEPTED' | 'DECLINED';
 export type DeliverableFormat = 'REPOSITORY_LINK' | 'FILE' | 'LINK';
@@ -174,7 +177,7 @@ export interface WalletTransaction {
 }
 
 export interface CompanyWallet {
-  role: 'COMPANY';
+  role: UserRole.COMPANY;
   currency: string;
   balance: number;
   reserved: number;
@@ -182,7 +185,7 @@ export interface CompanyWallet {
 }
 
 export interface GraduateWallet {
-  role: 'GRADUATE';
+  role: UserRole.GRADUATE;
   currency: string;
   balance: number;
   transactions: WalletTransaction[];
@@ -260,13 +263,14 @@ export interface MyApplication {
   evaluation: EvaluationSummary | null;
 }
 
-export type BoardStage =
-  | 'applied'
-  | 'accepted'
-  | 'submitted'
-  | 'evaluated'
-  | 'awarded'
-  | 'declined';
+export enum BoardStage {
+  Applied = 'applied',
+  Accepted = 'accepted',
+  Submitted = 'submitted',
+  Evaluated = 'evaluated',
+  Awarded = 'awarded',
+  Declined = 'declined',
+}
 
 export interface BoardCandidate {
   id: string;

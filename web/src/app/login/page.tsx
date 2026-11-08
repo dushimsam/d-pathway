@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/Button';
 import { Field } from '@/components/ui/Field';
 import { Input } from '@/components/ui/Input';
 import { loginSchema, type LoginInput } from '@/lib/schemas';
+import { UserRole } from '@/lib/types';
 
 function LoginForm() {
   const router = useRouter();
@@ -39,7 +40,7 @@ function LoginForm() {
     }
     const next =
       search.get('next') ??
-      (data.user?.role === 'COMPANY' ? '/projects' : '/dashboard');
+      (data.user?.role === UserRole.COMPANY ? '/projects' : '/dashboard');
     router.replace(next);
     router.refresh();
   }

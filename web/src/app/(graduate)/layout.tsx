@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import { Shell } from '@/components/shell/Shell';
 import { getCurrentUserServer } from '@/lib/server-api';
+import { UserRole } from '@/lib/types';
 
 const NAV = [
   { href: '/dashboard', label: 'Dashboard' },
@@ -17,7 +18,7 @@ export default async function GraduateLayout({
 }) {
   const user = await getCurrentUserServer();
   if (!user) redirect('/login');
-  if (user.role !== 'GRADUATE') redirect('/projects');
+  if (user.role !== UserRole.GRADUATE) redirect('/projects');
 
   return (
     <Shell email={user.email} roleLabel="Graduate" nav={NAV}>

@@ -10,6 +10,7 @@ import {
   ApplicationStatus,
   PrizeStatus,
   ProjectStatus,
+  UserRole,
 } from '../../../common/enums/index.js';
 import { CacheService } from '../../../redis/cache.service.js';
 import { CATALOGUE_CACHE_PREFIX } from '../../../redis/redis.constants.js';
@@ -387,7 +388,7 @@ export class ProjectsService {
     id: string,
   ): Promise<Project> {
     const project = await this.findByIdOrThrow(id);
-    if (user.role === 'COMPANY') {
+    if (user.role === UserRole.COMPANY) {
       const companyId = await this.companyIdForUser(user.id);
       this.assertOwnedByCompany(project, companyId);
       return this.ensureDeadlineTransition(project);

@@ -1,28 +1,29 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { AUTH_COOKIE } from '@/lib/auth-cookie';
+import { UserRole } from '@/lib/types';
 
 const API_BASE_URL = process.env.API_BASE_URL ?? 'http://localhost:3001/api/v1';
 
-type Role = 'GRADUATE' | 'COMPANY';
+type Role = UserRole;
 
 /** Which role a protected path requires. null = any authenticated user. */
 function requiredRole(pathname: string): Role | null {
-  if (pathname.startsWith('/deliverables')) return 'COMPANY';
-  if (pathname === '/projects' || pathname === '/projects/new') return 'COMPANY';
-  if (/^\/projects\/[^/]+\/applications$/.test(pathname)) return 'COMPANY';
-  if (/^\/projects\/[^/]+\/board$/.test(pathname)) return 'COMPANY';
-  if (/^\/projects\/[^/]+$/.test(pathname)) return 'GRADUATE';
-  if (pathname === '/catalogue' || pathname === '/dashboard') return 'GRADUATE';
-  if (pathname === '/applications' || pathname === '/earnings') return 'GRADUATE';
-  if (pathname === '/saved' || pathname === '/profile') return 'GRADUATE';
-  if (/^\/applications\/[^/]+\/submit$/.test(pathname)) return 'GRADUATE';
-  if (pathname === '/wallet' || pathname === '/settings') return 'COMPANY';
-  if (pathname === '/talent' || /^\/students\/[^/]+$/.test(pathname)) return 'COMPANY';
+  if (pathname.startsWith('/deliverables')) return UserRole.COMPANY;
+  if (pathname === '/projects' || pathname === '/projects/new') return UserRole.COMPANY;
+  if (/^\/projects\/[^/]+\/applications$/.test(pathname)) return UserRole.COMPANY;
+  if (/^\/projects\/[^/]+\/board$/.test(pathname)) return UserRole.COMPANY;
+  if (/^\/projects\/[^/]+$/.test(pathname)) return UserRole.GRADUATE;
+  if (pathname === '/catalogue' || pathname === '/dashboard') return UserRole.GRADUATE;
+  if (pathname === '/applications' || pathname === '/earnings') return UserRole.GRADUATE;
+  if (pathname === '/saved' || pathname === '/profile') return UserRole.GRADUATE;
+  if (/^\/applications\/[^/]+\/submit$/.test(pathname)) return UserRole.GRADUATE;
+  if (pathname === '/wallet' || pathname === '/settings') return UserRole.COMPANY;
+  if (pathname === '/talent' || /^\/students\/[^/]+$/.test(pathname)) return UserRole.COMPANY;
   // Public company pages (/companies/:id) pass through for anyone.
   return null;
 }
 
-const homeFor = (role: Role) => (role === 'COMPANY' ? '/projects' : '/dashboard');
+const homeFor = (role: Role) => (role === UserRole.COMPANY ? '/projects' : '/dashboard');
 
 export async function proxy(req: NextRequest): Promise<NextResponse> {
   const { pathname } = req.nextUrl;

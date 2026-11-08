@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Wallet as WalletIcon } from 'lucide-react';
 import { api } from '@/lib/api-client';
 import { formatMoney } from '@/lib/money';
-import type { Wallet } from '@/lib/types';
+import { UserRole, type Wallet } from '@/lib/types';
 
 /** Balance pill in the top navbar; links to the wallet (company) or earnings (student). */
 export function WalletNavLink() {
@@ -14,7 +14,7 @@ export function WalletNavLink() {
     queryFn: () => api.get<Wallet>('/wallet'),
   });
 
-  const href = data?.role === 'GRADUATE' ? '/earnings' : '/wallet';
+  const href = data?.role === UserRole.GRADUATE ? '/earnings' : '/wallet';
 
   return (
     <Link

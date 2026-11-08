@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { UserRole } from '../../../common/enums/index.js';
 import { ApplicationsService } from '../../applications/services/applications.service.js';
 import { EventsPublisher } from '../../activity/services/events.publisher.js';
 import { Evaluation } from '../../evaluations/entities/evaluation.entity.js';
@@ -87,7 +88,7 @@ export class DeliverablesService {
     applicationId: string,
   ): Promise<Deliverable> {
     const application: Application =
-      user.role === 'COMPANY'
+      user.role === UserRole.COMPANY
         ? (await this.applications.loadForOwningCompany(user.id, applicationId))
             .application
         : await this.applications.loadForTeamGraduate(user.id, applicationId);
@@ -111,7 +112,7 @@ export class DeliverablesService {
     id: string,
   ): Promise<Deliverable> {
     const deliverable = await this.getByIdWithChain(id);
-    if (user.role === 'COMPANY') {
+    if (user.role === UserRole.COMPANY) {
       const owningCompanyUserId = deliverable.application.project.company.userId;
       if (owningCompanyUserId !== user.id) {
         throw new NotFoundException('Deliverable not found.');

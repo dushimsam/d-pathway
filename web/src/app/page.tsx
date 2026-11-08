@@ -1,4 +1,5 @@
 import { getCurrentUserServer } from '@/lib/server-api';
+import { UserRole } from '@/lib/types';
 import { HeroScreen } from '@/components/landing/HeroScreen';
 import { HowItWorks } from '@/components/landing/HowItWorks';
 import { OpenBriefs } from '@/components/landing/OpenBriefs';
@@ -9,7 +10,7 @@ import { LandingFooter } from '@/components/landing/LandingFooter';
 
 export default async function LandingPage() {
   const user = await getCurrentUserServer();
-  const home = user ? (user.role === 'COMPANY' ? '/projects' : '/dashboard') : null;
+  const home = user ? (user.role === UserRole.COMPANY ? '/projects' : '/dashboard') : null;
 
   return (
     <div className="min-h-screen bg-white text-[#0b1020] antialiased selection:bg-[#3b5bfd] selection:text-white">
