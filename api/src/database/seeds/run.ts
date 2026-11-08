@@ -18,9 +18,9 @@ const SEED_BALANCE = 1_000_000;
 /**
  * Pilot seed. The platform is for any organisation posting real work — not just
  * tech companies, but cooperatives and small community groups too. The seed
- * mixes Strettch Cloud (tech) with a tailors' cooperative, a farmers'
- * cooperative and a youth media group. Some projects carry a cash prize
- * (Devpost-style); most do not. Idempotent: skips orgs that already exist.
+ * mixes a tailors' cooperative, a farmers' cooperative and a youth media group.
+ * Some projects carry a cash prize (Devpost-style); most do not. Idempotent:
+ * skips orgs that already exist.
  */
 
 const IP =
@@ -51,48 +51,6 @@ interface OrgDef {
 }
 
 const ORGS: OrgDef[] = [
-  {
-    name: 'Strettch Cloud',
-    industry: 'Cloud infrastructure',
-    email: 'cto@strettch.com',
-    title: 'CTO',
-    description: 'A Kigali cloud infrastructure company, first partner on the D-Pathway pilot.',
-    cover: '/images/real/work-cloud.jpg',
-    projects: [
-      {
-        title: 'Internal metrics dashboard',
-        brief:
-          'We have an internal metrics API and no good way to see it. Build a small dashboard that reads it and surfaces the three numbers we check daily. Ship a repo with a README and a short Loom.',
-        requiredSkills: ['typescript', 'react'],
-        format: DeliverableFormat.REPOSITORY_LINK,
-        applyIn: 10,
-        submitIn: 24,
-        prizeAmount: 150000,
-        status: ProjectStatus.OPEN,
-      },
-      {
-        title: 'Data cleanup script',
-        cover: '/images/real/hardware-metrics.jpg',
-        brief:
-          'A CSV export from a legacy system needs normalising before import. Write a well-tested script that validates and transforms it, with clear error reporting.',
-        requiredSkills: ['python', 'data'],
-        format: DeliverableFormat.FILE,
-        applyIn: 14,
-        submitIn: 28,
-        status: ProjectStatus.OPEN,
-      },
-      {
-        title: 'Draft: billing export idea',
-        cover: '/images/real/developer-screen.jpg',
-        brief: 'A rough idea we are still scoping.',
-        requiredSkills: ['typescript'],
-        format: DeliverableFormat.LINK,
-        applyIn: 20,
-        submitIn: 34,
-        status: ProjectStatus.DRAFT,
-      },
-    ],
-  },
   {
     name: 'Kigali Tailors Cooperative',
     industry: 'Garments & crafts',
@@ -328,7 +286,7 @@ async function run(): Promise<void> {
 
   // eslint-disable-next-line no-console
   console.log(
-    'Seed complete: 4 organisations (1 company + 3 cooperatives/groups), 1 graduate, prized and unprized projects.',
+    'Seed complete: 3 organisations (cooperatives/community groups), 1 graduate, prized and unprized projects.',
   );
   await ds.destroy();
 }

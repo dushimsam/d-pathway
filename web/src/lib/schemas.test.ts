@@ -68,7 +68,7 @@ describe('registerCompanySchema', () => {
       registerCompanySchema.safeParse({
         email: 'a@b.com',
         password: 'password1',
-        companyName: 'Strettch',
+        companyName: 'Acme Co',
       }).success,
     ).toBe(true);
   });

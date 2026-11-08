@@ -37,12 +37,11 @@ const BRIEFS: Brief[] = [
     applyBy: '10 Nov',
   },
   {
-    org: 'Strettch Cloud',
-    title: 'Internal metrics dashboard',
-    meta: 'Remote · Repository link',
-    skills: ['typescript', 'react'],
-    applyBy: '12 Nov',
-    prize: 'RWF 150,000',
+    org: 'Nyamirambo Youth Media',
+    title: 'Edit three short promo videos',
+    meta: 'Kigali · File',
+    skills: ['video editing', 'design'],
+    applyBy: '14 Nov',
   },
   {
     org: 'Kigali Tailors Cooperative',

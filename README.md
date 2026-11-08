@@ -1,6 +1,6 @@
 # D-Pathway
 
-A web platform connecting Kigali-based graduates with companies through real-world projects that help graduates demonstrate their skills and earn interview opportunities. Strettch Cloud is the first participating company.
+A web platform connecting Kigali-based graduates with companies and community organisations through real-world projects that help graduates demonstrate their skills and earn interview opportunities.
 
 ## Monorepo
 
@@ -20,7 +20,7 @@ cp .env.example .env
 docker compose up -d          # Postgres 16 on 127.0.0.1:5432
 npm ci
 npm run migration:run
-npm run seed                  # 3 companies, 1 graduate, sample projects
+npm run seed                  # 3 organisations, 1 graduate, sample projects
 npm run start:dev             # API on :3001, Swagger at /docs
 
 # 2. Web (new shell)
@@ -30,5 +30,5 @@ npm install --legacy-peer-deps
 npm run dev                   # http://localhost:3000
 ```
 
-Seeded logins (password `password123`): `cto@strettch.com` (company),
+Seeded logins (password `password123`): `orders@kigalitailors.rw` (company),
 `graduate@alu.edu` (graduate).
