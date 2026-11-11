@@ -16,6 +16,7 @@
     "test:watch": "vitest",
     "test:integration": "vitest run --config vitest.integration.config.ts",
     "test:integration:watch": "vitest --config vitest.integration.config.ts",
+    "test:coverage:all": "vitest run --config vitest.combined.config.ts",
     "typecheck": "tsc --noEmit",
     "typeorm": "node --loader ts-node/esm ./node_modules/typeorm/cli.js -d src/database/data-source.ts",
     "migration:generate": "npm run typeorm -- migration:generate",

@@ -6,3 +6,4 @@ test/integration/.tmp/
 .env.local
 npm-debug.log*
 .DS_Store
+coverage/
