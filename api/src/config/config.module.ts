@@ -9,6 +9,11 @@ import { configValidationSchema } from './config.schema.js';
     NestConfigModule.forRoot({
       isGlobal: true,
       cache: true,
+      // Under test the harness injects config straight into process.env (random
+      // Testcontainers ports, etc.). Reading a developer's .env here would let
+      // its DATABASE_URL/REDIS_URL win over those and point the app at the wrong
+      // services, so skip the file entirely in that mode.
+      ignoreEnvFile: process.env.NODE_ENV === 'test',
       validationSchema: configValidationSchema,
       // allowUnknown keeps process.env's many unrelated vars (and docker-compose's
       // POSTGRES_*) from failing validation; abortEarly:false reports all at once.

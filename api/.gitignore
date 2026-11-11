@@ -1,6 +1,7 @@
 node_modules/
 dist/
 *.tsbuildinfo
+test/integration/.tmp/
 .env
 .env.local
 npm-debug.log*

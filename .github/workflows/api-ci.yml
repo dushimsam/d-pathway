@@ -45,6 +45,9 @@ jobs:
       - run: npm run build
       - run: npm run migration:run
       - run: npm run test
+      # Integration tests spin up their own Postgres + Redis via Testcontainers
+      # (Docker is preinstalled on ubuntu runners), independent of the service above.
+      - run: npm run test:integration
 
   deploy:
     needs: check
