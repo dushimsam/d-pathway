@@ -257,7 +257,7 @@
     # after the git clone/pull — the same file you use for day-to-day restarts.
     - name: Start/reload the apps under pm2
       ansible.builtin.command:
-        cmd: pm2 startOrReload pm2.ecosystem.cjs --update-env
+        cmd: pm2 startOrReload ecosystem.config.cjs --update-env
         chdir: "{{ app_dir }}"
       changed_when: true
 
