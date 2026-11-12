@@ -1,0 +1,47 @@
+name: Deploy
+
+# Reusable deploy: SSH into the Strettch Cloud VM, pull main, rebuild both apps,
+# run migrations, and reload pm2. Called by API CI and Web CI after their checks
+# pass on a push to main. `concurrency` serialises deploys so a push that touches
+# both api/ and web/ (triggering both pipelines) never deploys twice at once.
+on:
+  workflow_call:
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy over SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          port: 222 # Strettch Cloud exposes SSH on 222
+          script_stop: true # abort on the first failing command (don't reload a broken build)
+          script: |
+            set -e
+            cd ${{ secrets.DEPLOY_PATH }}
+            git fetch --all --prune
+            git reset --hard origin/main
+
+            # API: install, build, migrate
+            cd api
+            npm ci
+            npm run build
+            npm run migration:run
+            cd ..
+
+            # Web: install, build
+            cd web
+            npm ci --legacy-peer-deps
+            npm run build
+            cd ..
+
+            # Reload both processes and persist the list
+            pm2 startOrReload ecosystem.config.cjs --update-env
+            pm2 save

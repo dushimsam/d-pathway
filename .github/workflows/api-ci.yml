@@ -52,19 +52,5 @@ jobs:
   deploy:
     needs: check
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Deploy over SSH
-        uses: appleboy/ssh-action@v1
-        with:
-          host: ${{ secrets.DEPLOY_HOST }}
-          username: ${{ secrets.DEPLOY_USER }}
-          key: ${{ secrets.DEPLOY_SSH_KEY }}
-          script: |
-            cd ${{ secrets.DEPLOY_PATH }}
-            git pull --ff-only
-            cd api
-            npm ci
-            npm run build
-            npm run migration:run
-            pm2 reload ecosystem.config.cjs --update-env
+    uses: ./.github/workflows/deploy.yml
+    secrets: inherit
