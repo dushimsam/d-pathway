@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="D-Pathway">
+  <defs>
+    <linearGradient id="dp" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#3b5bfd" />
+      <stop offset="1" stop-color="#1f34c7" />
+    </linearGradient>
+  </defs>
+  <rect width="32" height="32" rx="7" fill="url(#dp)" />
+  <!-- Hollow "D" monogram -->
+  <path fill="#ffffff" fill-rule="evenodd"
+        d="M9 6 H16 A10 10 0 0 1 16 26 H9 Z M13 11 H16 A5 5 0 0 1 16 21 H13 Z" />
+  <!-- Bright waypoint node (the "pathway" accent) -->
+  <circle cx="25" cy="7" r="2.3" fill="#8fb0ff" />
+</svg>
