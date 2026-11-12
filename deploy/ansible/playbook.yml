@@ -1,0 +1,320 @@
+---
+# Provisions a fresh Ubuntu 24.04 VM into a live D-Pathway deployment:
+# Node + Docker (Postgres/Redis) + the API and web app under pm2, fronted by
+# Caddy with automatic HTTPS for dpathway.site and api.dpathway.site.
+#
+# Run:  ansible-playbook playbook.yml
+# (Terraform writes inventory.ini; secrets come from secrets.yml.)
+
+- name: Deploy D-Pathway
+  hosts: dpathway
+  gather_facts: true
+  vars_files:
+    - secrets.yml
+
+  pre_tasks:
+    - name: Wait for the VM's SSH to come up
+      ansible.builtin.wait_for_connection:
+        timeout: 300
+
+    # A freshly-booted Ubuntu runs unattended-upgrades, which holds the dpkg
+    # lock. Wait for it (and any apt locks) to clear before our apt tasks.
+    - name: Wait for apt/dpkg locks to be released
+      ansible.builtin.shell: |
+        for i in $(seq 1 60); do
+          if ! fuser /var/lib/dpkg/lock-frontend /var/lib/dpkg/lock \
+                      /var/cache/apt/archives/lock /var/lib/apt/lists/lock \
+                      >/dev/null 2>&1; then
+            exit 0
+          fi
+          sleep 5
+        done
+        echo "apt/dpkg lock still held after 5 minutes" >&2
+        exit 1
+      changed_when: false
+
+  tasks:
+    # ───────────────────────── base system ─────────────────────────
+    - name: Install base packages
+      ansible.builtin.apt:
+        name:
+          - ca-certificates
+          - curl
+          - gnupg
+          - git
+          - ufw
+        state: present
+        update_cache: true
+
+    # ───────────────────────── firewall (lock down early) ─────────────────────────
+    # Only SSH (22 + Strettch's 222) and HTTPS (443) are open. The API (3001),
+    # web (3000), Postgres and Redis bind locally / behind Caddy and must never be
+    # reachable from the internet. Caddy gets certificates over TLS-ALPN-01 on 443,
+    # so port 80 stays closed too.
+    - name: Set UFW default policies
+      ansible.builtin.command: "ufw default {{ item.policy }} {{ item.direction }}"
+      loop:
+        - { policy: deny, direction: incoming }
+        - { policy: allow, direction: outgoing }
+      changed_when: false
+
+    - name: Allow SSH (22 + 222) and HTTPS (443)
+      ansible.builtin.command: "ufw allow {{ item }}/tcp"
+      loop:
+        - 22
+        - 222
+        - 443
+      changed_when: false
+
+    - name: Enable UFW
+      ansible.builtin.command: ufw --force enable
+      changed_when: false
+
+    - name: Ensure apt keyrings directory
+      ansible.builtin.file:
+        path: /etc/apt/keyrings
+        state: directory
+        mode: "0755"
+
+    # ───────────────────────── swap (build headroom) ─────────────────────────
+    - name: Create swapfile
+      ansible.builtin.command: "fallocate -l {{ swap_size_mb }}M /swapfile"
+      args:
+        creates: /swapfile
+
+    - name: Secure swapfile
+      ansible.builtin.file:
+        path: /swapfile
+        mode: "0600"
+
+    - name: Format swapfile
+      ansible.builtin.command: mkswap /swapfile
+      register: mkswap
+      changed_when: "'Setting up swapspace' in mkswap.stdout"
+      failed_when: mkswap.rc != 0 and 'already' not in mkswap.stderr
+
+    - name: Enable swap now and on boot
+      ansible.builtin.lineinfile:
+        path: /etc/fstab
+        line: "/swapfile none swap sw 0 0"
+        state: present
+      notify: Activate swap
+
+    # ───────────────────────── Node.js (NodeSource) ─────────────────────────
+    - name: Add NodeSource GPG key
+      ansible.builtin.get_url:
+        url: https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key
+        dest: /etc/apt/keyrings/nodesource.asc
+        mode: "0644"
+
+    - name: Add NodeSource repository
+      ansible.builtin.apt_repository:
+        repo: "deb [signed-by=/etc/apt/keyrings/nodesource.asc] https://deb.nodesource.com/node_{{ node_major }}.x nodistro main"
+        filename: nodesource
+        state: present
+
+    - name: Install Node.js
+      ansible.builtin.apt:
+        name: nodejs
+        state: present
+        update_cache: true
+
+    - name: Install pm2 globally
+      ansible.builtin.command: npm install -g pm2@latest
+      changed_when: true
+
+    # ───────────────────────── Docker ─────────────────────────
+    - name: Add Docker GPG key
+      ansible.builtin.get_url:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        dest: /etc/apt/keyrings/docker.asc
+        mode: "0644"
+
+    - name: Add Docker repository
+      ansible.builtin.apt_repository:
+        repo: "deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
+        filename: docker
+        state: present
+
+    - name: Install Docker Engine + Compose plugin
+      ansible.builtin.apt:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+          - docker-buildx-plugin
+          - docker-compose-plugin
+        state: present
+        update_cache: true
+
+    - name: Ensure Docker is running
+      ansible.builtin.systemd:
+        name: docker
+        state: started
+        enabled: true
+
+    # ───────────────────────── Caddy ─────────────────────────
+    - name: Add Caddy GPG key
+      ansible.builtin.get_url:
+        url: https://dl.cloudsmith.io/public/caddy/stable/gpg.key
+        dest: /etc/apt/keyrings/caddy-stable.asc
+        mode: "0644"
+
+    - name: Add Caddy repository
+      ansible.builtin.apt_repository:
+        repo: "deb [signed-by=/etc/apt/keyrings/caddy-stable.asc] https://dl.cloudsmith.io/public/caddy/stable/deb/debian any-version main"
+        filename: caddy-stable
+        state: present
+
+    - name: Install Caddy
+      ansible.builtin.apt:
+        name: caddy
+        state: present
+        update_cache: true
+
+    # ───────────────────────── application code ─────────────────────────
+    - name: Clone/update the repository
+      ansible.builtin.git:
+        repo: "{{ repo_url }}"
+        dest: "{{ app_dir }}"
+        version: "{{ git_branch }}"
+        force: true
+
+    - name: Render API environment file
+      ansible.builtin.template:
+        src: api.env.j2
+        dest: "{{ app_dir }}/api/.env"
+        mode: "0600"
+
+    - name: Render web environment file
+      ansible.builtin.template:
+        src: web.env.j2
+        dest: "{{ app_dir }}/web/.env"
+        mode: "0600"
+
+    # ───────────────────────── data services (Docker) ─────────────────────────
+    - name: Start Postgres + Redis (docker compose)
+      ansible.builtin.command:
+        cmd: docker compose -f api/docker-compose.yml --env-file api/.env up -d
+        chdir: "{{ app_dir }}"
+      changed_when: true
+
+    - name: Wait for Postgres to accept connections
+      ansible.builtin.command:
+        cmd: docker compose -f api/docker-compose.yml --env-file api/.env exec -T db pg_isready -U {{ postgres_user }}
+        chdir: "{{ app_dir }}"
+      register: pg_ready
+      until: pg_ready.rc == 0
+      retries: 30
+      delay: 2
+      changed_when: false
+
+    - name: Ensure the uuid-ossp extension exists (migrations rely on uuid_generate_v4)
+      ansible.builtin.command:
+        cmd: docker compose -f api/docker-compose.yml --env-file api/.env exec -T db psql -U {{ postgres_user }} -d {{ postgres_db }} -c "CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\";"
+        chdir: "{{ app_dir }}"
+      changed_when: false
+
+    # ───────────────────────── build + migrate API ─────────────────────────
+    # NODE_ENV is intentionally unset here so `npm ci` installs devDependencies
+    # (needed for `nest build` and the ts-node migration runner).
+    - name: Install API dependencies
+      ansible.builtin.command:
+        cmd: npm ci
+        chdir: "{{ app_dir }}/api"
+      changed_when: true
+
+    - name: Build the API
+      ansible.builtin.command:
+        cmd: npm run build
+        chdir: "{{ app_dir }}/api"
+      changed_when: true
+
+    # Schema only — intentionally NO `npm run seed`. Production starts with an
+    # empty database so real users land on a clean site (the repo is public, and
+    # the demo seed data must never appear in production).
+    - name: Run database migrations (schema only, no seed data)
+      ansible.builtin.command:
+        cmd: npm run migration:run
+        chdir: "{{ app_dir }}/api"
+      changed_when: true
+
+    # ───────────────────────── build web ─────────────────────────
+    - name: Install web dependencies
+      ansible.builtin.command:
+        cmd: npm ci --legacy-peer-deps
+        chdir: "{{ app_dir }}/web"
+      changed_when: true
+
+    - name: Build the web app
+      ansible.builtin.command:
+        cmd: npm run build
+        chdir: "{{ app_dir }}/web"
+      changed_when: true
+
+    # ───────────────────────── run under pm2 ─────────────────────────
+    # The ecosystem file is committed at the repo root, so it's already present
+    # after the git clone/pull — the same file you use for day-to-day restarts.
+    - name: Start/reload the apps under pm2
+      ansible.builtin.command:
+        cmd: pm2 startOrReload pm2.ecosystem.cjs --update-env
+        chdir: "{{ app_dir }}"
+      changed_when: true
+
+    - name: Install pm2 systemd startup unit
+      ansible.builtin.command: pm2 startup systemd -u root --hp /root
+      changed_when: true
+
+    - name: Persist the pm2 process list
+      ansible.builtin.command: pm2 save
+      changed_when: true
+
+    # ───────────────────────── Caddy config ─────────────────────────
+    - name: Render Caddyfile
+      ansible.builtin.template:
+        src: Caddyfile.j2
+        dest: /etc/caddy/Caddyfile
+        mode: "0644"
+      notify: Reload Caddy
+
+    - name: Ensure Caddy is running and enabled
+      ansible.builtin.systemd:
+        name: caddy
+        state: started
+        enabled: true
+
+    # ───────────────────────── health checks ─────────────────────────
+    - name: Wait for the API to be healthy
+      ansible.builtin.uri:
+        url: "http://127.0.0.1:{{ api_port }}/api/v1/health"
+        status_code: 200
+      register: api_health
+      until: api_health.status == 200
+      retries: 20
+      delay: 3
+
+    - name: Wait for the web app to respond
+      ansible.builtin.uri:
+        url: "http://127.0.0.1:{{ web_port }}"
+        status_code: 200
+      register: web_health
+      until: web_health.status == 200
+      retries: 20
+      delay: 3
+
+    - name: Deployment summary
+      ansible.builtin.debug:
+        msg:
+          - "API health: {{ api_health.json | default('ok') }}"
+          - "Web responded with: {{ web_health.status }}"
+          - "Point DNS A records for {{ web_domain }} and {{ api_domain }} at this VM's public IP; Caddy will then issue HTTPS certificates automatically."
+
+  handlers:
+    - name: Activate swap
+      ansible.builtin.command: swapon /swapfile
+      changed_when: true
+
+    - name: Reload Caddy
+      ansible.builtin.systemd:
+        name: caddy
+        state: reloaded

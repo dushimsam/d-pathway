@@ -151,3 +151,7 @@ references/
 .DS_Store
 
 AGENTS.md
+
+.claude/
+
+.agents/

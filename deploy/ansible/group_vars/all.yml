@@ -1,0 +1,24 @@
+# Non-secret deployment config. Secrets live in secrets.yml (git-ignored).
+
+# Domains served by Caddy (automatic HTTPS once the A records resolve here).
+web_domain: dpathway.site
+api_domain: api.dpathway.site
+
+# ACME account email for Let's Encrypt (expiry notices). Any address you own.
+acme_email: admin@dpathway.site
+
+# Where the code lives on the VM, and where it comes from.
+app_dir: /opt/dpathway
+repo_url: "https://github.com/dushimsam/d-pathway.git"
+git_branch: main
+
+# Runtimes. Node 26 is the current LTS — keep this in step with the CI matrix
+# (.github/workflows) so production runs the version the tests ran on.
+node_major: 26
+
+# Internal ports the apps listen on (Caddy reverse-proxies to these).
+api_port: 3001
+web_port: 3000
+
+# Swap as build insurance (Next.js + Nest builds are memory-hungry).
+swap_size_mb: 2048

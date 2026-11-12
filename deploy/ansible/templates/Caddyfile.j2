@@ -1,0 +1,16 @@
+# Managed by Ansible. Caddy obtains + renews Let's Encrypt certificates
+# automatically once {{ web_domain }} and {{ api_domain }} resolve to this VM.
+{
+	email {{ acme_email }}
+}
+
+{{ api_domain }} {
+	encode gzip
+	reverse_proxy 127.0.0.1:{{ api_port }}
+}
+
+{{ web_domain }} {
+	encode gzip
+	# Next.js server (web/) runs on {{ web_port }}.
+	reverse_proxy 127.0.0.1:{{ web_port }}
+}

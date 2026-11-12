@@ -1,0 +1,17 @@
+{
+  "version": 2,
+  "skills": {
+    "strettch-cloud": {
+      "source": "strettch-cloud/docs",
+      "sourceType": "github",
+      "skillPath": "skills/strettch-cloud/SKILL.md",
+      "computedHash": "4521b2ec6123f63dacc325fde80ed879818d2e165d47219d4f694e0a311f2066"
+    },
+    "strettch-cloud-terraform": {
+      "source": "strettch-cloud/docs",
+      "sourceType": "github",
+      "skillPath": "skills/strettch-cloud-terraform/SKILL.md",
+      "computedHash": "089e0e46ed866b840e82dc4ad1f05a2b951507942f35c3fdc91ae0b1ba6ebf32"
+    }
+  }
+}
