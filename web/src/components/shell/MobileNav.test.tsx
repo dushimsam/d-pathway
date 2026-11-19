@@ -34,7 +34,7 @@ describe('MobileNav', () => {
     renderWithClient(
       <MobileNav email="me@school.edu" roleLabel="Student" nav={nav} />,
     );
-    // drawer closed initially — nav links not visible
+    // drawer closed initially - nav links not visible
     expect(screen.queryByRole('link', { name: 'Projects' })).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('button', { name: 'Open menu' }));

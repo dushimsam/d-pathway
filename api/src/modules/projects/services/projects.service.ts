@@ -215,18 +215,37 @@ export class ProjectsService {
 
   async close(userId: string, id: string): Promise<Project> {
     const companyId = await this.companyIdForUser(userId);
-    const project = await this.findByIdOrThrow(id);
-    this.assertOwnedByCompany(project, companyId);
-    assertClosable(project);
-    project.status = ProjectStatus.CLOSED;
-    const saved = await this.projects.save(project);
+
+    const saved = await this.dataSource.transaction(async (m) => {
+      const project = await m.findOne(Project, { where: { id } });
+      if (!project) throw new NotFoundException('Project not found.');
+      this.assertOwnedByCompany(project, companyId);
+      assertClosable(project);
+
+      // Closing without awarding returns any still-held prize to the company
+      // wallet — the escrow is only released to a student via award().
+      if (project.prizeStatus === PrizeStatus.HELD && project.prizeAmount) {
+        await this.wallet.refundPrize(
+          m,
+          companyId,
+          project.prizeAmount,
+          id,
+          project.title,
+        );
+        project.prizeStatus = PrizeStatus.REFUNDED;
+      }
+
+      project.status = ProjectStatus.CLOSED;
+      return m.save(project);
+    });
+
     await this.invalidateCatalogue();
     return saved;
   }
 
   /**
    * Delete a project the company owns. Blocked once any applicant has been
-   * accepted (P-DEL) — a selected team has committed to the work. Pending and
+   * accepted (P-DEL) - a selected team has committed to the work. Pending and
    * declined applications (and any team invitations) are removed with it via the
    * database's ON DELETE CASCADE.
    */

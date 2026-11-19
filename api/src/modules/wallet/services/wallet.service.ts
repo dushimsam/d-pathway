@@ -47,7 +47,7 @@ export class WalletService {
     if (!company) throw new NotFoundException('Company not found.');
     if (company.balance < amount) {
       throw new ConflictException(
-        'Insufficient wallet balance to fund this prize — top up your balance first.',
+        'Insufficient wallet balance to fund this prize - top up your balance first.',
       );
     }
     company.balance -= amount;

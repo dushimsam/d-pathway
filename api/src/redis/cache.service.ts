@@ -5,7 +5,7 @@ import { REDIS_CLIENT } from './redis.constants.js';
 /**
  * Thin JSON cache over Redis with TTL and prefix invalidation. Used to cache
  * read-heavy, slow-changing views (catalogue, dashboards). Cache failures never
- * break a request — they fall through to the source of truth.
+ * break a request - they fall through to the source of truth.
  */
 @Injectable()
 export class CacheService {

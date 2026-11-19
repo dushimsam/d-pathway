@@ -138,7 +138,7 @@ export default function ReviewQueuePage({
                     {a.graduate.fullName}
                   </p>
                   <p className="text-[12px] text-n500">
-                    {a.graduate.location ?? '—'}
+                    {a.graduate.location ?? '-'}
                   </p>
                 </div>
                 <StatusPill status={a.status} />

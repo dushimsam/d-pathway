@@ -38,9 +38,9 @@ export function Shell({
 
   return (
     <div className="app-light flex min-h-screen bg-n100 text-n900">
-      {/* Desktop sidebar — foldable */}
+      {/* Desktop sidebar - foldable */}
       {!collapsed && (
-        <aside className="hidden w-60 shrink-0 flex-col border-r border-n300 bg-n0 px-4 py-6 md:flex">
+        <aside className="sticky top-0 hidden h-screen w-60 shrink-0 flex-col overflow-y-auto border-r border-n300 bg-n0 px-4 py-6 md:flex">
           <div className="mb-8 flex items-start justify-between px-3">
             <div>
               <Link
@@ -70,7 +70,7 @@ export function Shell({
       )}
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="hidden h-16 items-center justify-between border-b border-n300 bg-n0 px-6 md:flex">
+        <header className="sticky top-0 z-30 hidden h-16 items-center justify-between border-b border-n300 bg-n0 px-6 md:flex">
           {collapsed ? (
             <button
               type="button"

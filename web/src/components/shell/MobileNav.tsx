@@ -22,7 +22,7 @@ export function MobileNav({
 
   return (
     <div className="md:hidden">
-      <div className="flex h-14 items-center justify-between gap-2 border-b border-n300 bg-n0 px-4">
+      <div className="sticky top-0 z-30 flex h-14 items-center justify-between gap-2 border-b border-n300 bg-n0 px-4">
         <button
           type="button"
           onClick={() => setOpen(true)}

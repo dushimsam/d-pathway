@@ -170,7 +170,7 @@ export class MembershipsService {
     }));
   }
 
-  /** Graduate ids on the team (lead implicit) that have accepted — used for visibility. */
+  /** Graduate ids on the team (lead implicit) that have accepted - used for visibility. */
   async acceptedMemberGraduateIds(applicationId: string): Promise<string[]> {
     const rows = await this.memberships.find({
       where: { applicationId, status: MembershipStatus.ACCEPTED },

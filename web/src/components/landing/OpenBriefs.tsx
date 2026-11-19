@@ -59,7 +59,7 @@ const BRIEFS: Brief[] = [
   },
 ];
 
-/** Landing section 3 — a showcase grid of open briefs (their "Talents Pool"). */
+/** Landing section 3 - a showcase grid of open briefs (their "Talents Pool"). */
 export function OpenBriefs() {
   return (
     <section id="briefs" className="bg-white text-[#0b1020]">

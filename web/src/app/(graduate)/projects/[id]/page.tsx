@@ -221,7 +221,7 @@ export default function ProjectPage({
               <>
                 <h2 className="text-[16px] font-semibold text-n900">Apply</h2>
                 <p className="text-[13px] text-n500">
-                  Apply solo, or apply and invite teammates after — you&apos;ll be
+                  Apply solo, or apply and invite teammates after - you&apos;ll be
                   the team lead.
                 </p>
                 <Field label="Note to the company (optional)" htmlFor="note">

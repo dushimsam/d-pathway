@@ -37,7 +37,7 @@ const ibmPlexMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: 'D-Pathway — Kigali Graduate Labour Market Platform',
+  title: 'D-Pathway - Kigali Graduate Labour Market Platform',
   description:
     'Bounded enterprise projects, immutable evaluations, and direct career pathways for Kigali graduates.',
 };

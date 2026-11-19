@@ -18,13 +18,13 @@ export default async function LandingPage() {
       <HeroScreen home={home} />
 
       <main id="main">
-        {/* 2. How it works — 3 steps */}
+        {/* 2. How it works - 3 steps */}
         <HowItWorks />
 
-        {/* 3. Open briefs — showcase grid */}
+        {/* 3. Open briefs - showcase grid */}
         <OpenBriefs />
 
-        {/* 4. Why choose us — visual bento */}
+        {/* 4. Why choose us - visual bento */}
         <WhyChooseUs />
 
         {/* 5. CTA banner with cut-out person */}

@@ -130,7 +130,7 @@ export default function StudentProfilePage({
             <Stat
               icon={<Star className="h-4 w-4" />}
               label="Avg score"
-              value={data.stats.briefsCompleted > 0 ? `${data.stats.avgScore}/5` : '—'}
+              value={data.stats.briefsCompleted > 0 ? `${data.stats.avgScore}/5` : '-'}
             />
             <Stat
               icon={<Award className="h-4 w-4" />}

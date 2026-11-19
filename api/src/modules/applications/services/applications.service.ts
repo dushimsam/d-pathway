@@ -181,7 +181,7 @@ export class ApplicationsService {
   /**
    * The ATS pipeline board for one project: every applicant annotated with the
    * stage they're at, derived from the lifecycle (application → deliverable →
-   * evaluation → award). No extra state to maintain — the existing accept /
+   * evaluation → award). No extra state to maintain - the existing accept /
    * decline / evaluate / award actions move candidates between columns.
    */
   async board(userId: string, projectId: string): Promise<unknown> {

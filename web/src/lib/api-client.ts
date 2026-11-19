@@ -1,6 +1,6 @@
 // Thin fetch wrapper used by client components. It talks to the same-origin
 // /api/v1 proxy (app/api/v1/[...path]), which injects the bearer token from the
-// httpOnly cookie — so no token ever touches the browser or localStorage.
+// httpOnly cookie - so no token ever touches the browser or localStorage.
 
 export class ApiError extends Error {
   constructor(

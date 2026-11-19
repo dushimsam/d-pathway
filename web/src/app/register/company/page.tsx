@@ -45,7 +45,7 @@ export default function RegisterCompanyPage() {
   return (
     <AuthShell
       title="Register your organisation"
-      subtitle="Company, cooperative or community group — post projects and review applicants."
+      subtitle="Company, cooperative or community group - post projects and review applicants."
       footer={
         <>
           Already have an account?{' '}

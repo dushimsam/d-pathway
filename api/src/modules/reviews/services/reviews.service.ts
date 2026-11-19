@@ -122,7 +122,7 @@ export class ReviewsService {
     };
   }
 
-  /** Aggregate rating per company id — for catalogue / list cards. */
+  /** Aggregate rating per company id - for catalogue / list cards. */
   async summaryFor(companyIds: string[]): Promise<Map<string, RatingSummary>> {
     const out = new Map<string, RatingSummary>();
     if (companyIds.length === 0) return out;

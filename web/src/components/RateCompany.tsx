@@ -9,7 +9,7 @@ import { api } from '@/lib/api-client';
 /**
  * Inline control for a student to rate the company they worked with. Collapsed
  * to a single button until opened; after submitting it reflects the given stars.
- * `existingRating` (if set) means the student already reviewed — shown read-only.
+ * `existingRating` (if set) means the student already reviewed - shown read-only.
  */
 export function RateCompany({
   projectId,

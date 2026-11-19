@@ -9,9 +9,10 @@ import {
   Star,
   Trophy,
 } from 'lucide-react';
-import { callApi } from '@/lib/server-api';
+import { callApi, getCurrentUserServer } from '@/lib/server-api';
 import { formatMoney } from '@/lib/money';
-import type { StudentProfile } from '@/lib/types';
+import { UserRole, type StudentProfile } from '@/lib/types';
+import { LogoutButton } from '@/components/shell/LogoutButton';
 
 export default async function PublicStudentPage({
   params,
@@ -23,6 +24,11 @@ export default async function PublicStudentPage({
   if (!res.ok) notFound();
   const s = (await res.json()) as StudentProfile;
 
+  // Public page, but reflect the viewer's session: a logged-in user sees their
+  // own nav (go to app + sign out) instead of a "Log in" button.
+  const viewer = await getCurrentUserServer();
+  const appHref = viewer?.role === UserRole.COMPANY ? '/projects' : '/dashboard';
+
   const stats: Array<{ icon: React.ReactNode; label: string; value: string }> = [
     {
       icon: <Briefcase className="h-4 w-4" />,
@@ -32,7 +38,7 @@ export default async function PublicStudentPage({
     {
       icon: <Star className="h-4 w-4" />,
       label: 'Avg score',
-      value: s.stats.briefsCompleted > 0 ? `${s.stats.avgScore}/5` : '—',
+      value: s.stats.briefsCompleted > 0 ? `${s.stats.avgScore}/5` : '-',
     },
     {
       icon: <Award className="h-4 w-4" />,
@@ -56,12 +62,24 @@ export default async function PublicStudentPage({
           <Link href="/" className="text-[20px] font-extrabold tracking-tight">
             D<span className="text-[#2847d3]">·</span>Pathway
           </Link>
-          <Link
-            href="/login"
-            className="rounded-[10px] bg-[#2847d3] px-4 py-2 text-[14px] font-semibold text-white"
-          >
-            Log in
-          </Link>
+          {viewer ? (
+            <div className="flex items-center gap-4">
+              <Link
+                href={appHref}
+                className="text-[14px] font-semibold text-[#2847d3] hover:underline"
+              >
+                My dashboard
+              </Link>
+              <LogoutButton />
+            </div>
+          ) : (
+            <Link
+              href="/login"
+              className="rounded-[10px] bg-[#2847d3] px-4 py-2 text-[14px] font-semibold text-white"
+            >
+              Log in
+            </Link>
+          )}
         </div>
       </header>
 

@@ -2,7 +2,7 @@ import { differenceInHours, format } from 'date-fns';
 import { Badge, type BadgeVariant } from './Badge';
 
 /**
- * Shows an absolute date (Africa/Kigali is UTC+2, no DST — we render the local
+ * Shows an absolute date (Africa/Kigali is UTC+2, no DST - we render the local
  * machine's formatting of the UTC instant) plus "x days left"; warning tint
  * under 48h, danger once passed.
  */

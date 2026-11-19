@@ -184,7 +184,7 @@ export default function CompanySettingsPage() {
           </Field>
           <Field label="Team size" htmlFor="size">
             <Select id="size" value={size} onChange={(e) => setSize(e.target.value)}>
-              <option value="">—</option>
+              <option value="">-</option>
               {SIZES.map((s) => (
                 <option key={s} value={s}>
                   {s}

@@ -15,7 +15,7 @@ export function AuthShell({
 }) {
   return (
     <div className="app-light flex min-h-screen bg-white font-sans text-[#0b1020]">
-      {/* ---------- Brand panel (desktop) — navy gradient, matching the landing ---------- */}
+      {/* ---------- Brand panel (desktop) - navy gradient, matching the landing ---------- */}
       <aside
         className="relative hidden w-[46%] overflow-hidden text-white lg:flex lg:flex-col lg:justify-between lg:p-12"
         style={{ background: 'linear-gradient(160deg, #0a1550 0%, #122a7a 55%, #2a56d6 100%)' }}
@@ -46,7 +46,7 @@ export function AuthShell({
         </p>
       </aside>
 
-      {/* ---------- Form panel — light ---------- */}
+      {/* ---------- Form panel - light ---------- */}
       <main className="flex flex-1 items-center justify-center bg-[#f5f7ff] p-6">
         <div className="w-full max-w-md">
           <div className="mb-6 text-center lg:hidden">

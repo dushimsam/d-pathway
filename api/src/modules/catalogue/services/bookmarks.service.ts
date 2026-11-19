@@ -15,7 +15,7 @@ export class BookmarksService {
     private readonly graduates: GraduatesService,
   ) {}
 
-  /** Bookmark a brief. Idempotent — saving twice is a no-op. */
+  /** Bookmark a brief. Idempotent - saving twice is a no-op. */
   async save(userId: string, projectId: string): Promise<{ saved: true }> {
     const graduate = await this.graduates.getByUserIdOrThrow(userId);
     const project = await this.projects.findOne({ where: { id: projectId } });
@@ -37,7 +37,7 @@ export class BookmarksService {
     return { saved: false };
   }
 
-  /** The ids of briefs this graduate has saved — for quick UI lookups. */
+  /** The ids of briefs this graduate has saved - for quick UI lookups. */
   async listIds(userId: string): Promise<string[]> {
     const graduate = await this.graduates.getByUserIdOrThrow(userId);
     const rows = await this.saved.find({

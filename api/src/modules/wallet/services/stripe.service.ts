@@ -23,7 +23,7 @@ export class StripeService {
     const { secretKey } = this.config.stripe;
     if (!secretKey) {
       throw new ServiceUnavailableException(
-        'Payments are not configured — set STRIPE_SECRET_KEY to enable wallet top-ups.',
+        'Payments are not configured - set STRIPE_SECRET_KEY to enable wallet top-ups.',
       );
     }
     this.client = new Stripe(secretKey);

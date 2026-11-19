@@ -7,7 +7,7 @@ export interface UploadResult {
 
 /**
  * Upload a file straight from the browser to Cloudinary using signed params
- * from POST /uploads/sign. The API never receives the bytes — only the
+ * from POST /uploads/sign. The API never receives the bytes - only the
  * resulting URL and public id (sent later on the deliverable).
  */
 export function uploadToCloudinary(

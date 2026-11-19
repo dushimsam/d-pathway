@@ -156,6 +156,28 @@ describe('Projects (integration)', () => {
       const project = await createOpenProject(c);
       await c.client.post(`/api/v1/projects/${project.id}/close`).expect(409);
     });
+
+    it('refunds a held prize to the company wallet when closed without awarding', async () => {
+      const c = await freshCompany();
+      await creditCompany(ctx.dataSource, c.companyId, 50_000);
+      // Prized project escrows 30k out of the balance (→ 20k available).
+      const project = await createDraftProject(c, { prizeAmount: 30_000 });
+      // A project is only closable once IN_PROGRESS; set it directly.
+      await ctx.dataSource.query(
+        "UPDATE projects SET status = 'IN_PROGRESS' WHERE id = $1",
+        [project.id],
+      );
+
+      const res = await c.client
+        .post(`/api/v1/projects/${project.id}/close`)
+        .expect(201);
+      expect(res.body.status).toBe('CLOSED');
+      expect(res.body.prizeStatus).toBe('REFUNDED');
+
+      // The escrow is back in the company's available balance.
+      const wallet = await c.client.get('/api/v1/wallet').expect(200);
+      expect(wallet.body.balance).toBe(50_000);
+    });
   });
 
   describe('DELETE /projects/:id', () => {

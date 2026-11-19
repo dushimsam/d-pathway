@@ -106,7 +106,7 @@ export default function EarningsPage() {
       <h2 className="mb-3 text-[16px] font-semibold text-n900">Transactions</h2>
       {data.transactions.length === 0 ? (
         <Card className="text-[14px] text-n500">
-          Nothing yet — win a prize to start earning.
+          Nothing yet - win a prize to start earning.
         </Card>
       ) : (
         <div className="flex flex-col gap-2">

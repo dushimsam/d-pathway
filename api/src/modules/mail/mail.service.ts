@@ -34,7 +34,7 @@ export class MailService {
     const { apiKey } = this.config.mail;
     if (!apiKey) {
       this.logger.warn(
-        'RESEND_API_KEY not set — emails will be logged, not sent.',
+        'RESEND_API_KEY not set - emails will be logged, not sent.',
       );
       return null;
     }
@@ -42,7 +42,7 @@ export class MailService {
     return this.client;
   }
 
-  /** Low-level send. Never throws into the caller — email is best-effort. */
+  /** Low-level send. Never throws into the caller - email is best-effort. */
   async send(to: string, subject: string, html: string): Promise<void> {
     if (!to) return;
     const client = this.getClient();

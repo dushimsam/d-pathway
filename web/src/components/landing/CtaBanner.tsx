@@ -3,7 +3,7 @@ import { Star } from 'lucide-react';
 import { Reveal } from './Reveal';
 
 /**
- * Landing CTA banner (before the FAQ) — matches the reference: a vivid gradient
+ * Landing CTA banner (before the FAQ) - matches the reference: a vivid gradient
  * card with a cut-out person overflowing the top edge and floating info cards.
  */
 export function CtaBanner() {
@@ -27,7 +27,7 @@ export function CtaBanner() {
           {/* content */}
           <Reveal className="relative z-10 max-w-xl" variant="left">
             <h2 className="font-display text-[clamp(2rem,3.6vw,3rem)] font-extrabold leading-[1.08] tracking-tight text-white">
-              Kick off your hiring now — quick and easy!
+              Kick off your hiring now - quick and easy!
             </h2>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link
@@ -45,7 +45,7 @@ export function CtaBanner() {
             </div>
           </Reveal>
 
-          {/* cut-out person (mobile) — shown in-flow below the content, sitting at
+          {/* cut-out person (mobile) - shown in-flow below the content, sitting at
               the card's bottom edge, since the absolute desktop version is hidden. */}
           <Reveal
             variant="up"
@@ -61,7 +61,7 @@ export function CtaBanner() {
             />
           </Reveal>
 
-          {/* cut-out person (desktop) — drops in from above and settles at the bottom edge */}
+          {/* cut-out person (desktop) - drops in from above and settles at the bottom edge */}
           <Reveal
             variant="fall"
             delay={120}
@@ -76,7 +76,7 @@ export function CtaBanner() {
             />
           </Reveal>
 
-          {/* floating card — a live brief */}
+          {/* floating card - a live brief */}
           <Reveal
             variant="zoom"
             delay={900}
@@ -96,7 +96,7 @@ export function CtaBanner() {
             </div>
           </Reveal>
 
-          {/* floating card — a stat */}
+          {/* floating card - a stat */}
           <Reveal
             variant="zoom"
             delay={1080}

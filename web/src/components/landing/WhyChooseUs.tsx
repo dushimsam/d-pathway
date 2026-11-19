@@ -17,7 +17,7 @@ function CornerBlob() {
 }
 
 /**
- * Landing section 4 — "Why choose us", built to match the reference bento:
+ * Landing section 4 - "Why choose us", built to match the reference bento:
  * two small cards + a wide card on the left, and a tall filled accent card on
  * the right. Icon tile, title and a short paragraph per card.
  */
@@ -38,7 +38,7 @@ export function WhyChooseUs() {
         </Reveal>
 
         <div className="mt-12 grid gap-5 md:grid-cols-3">
-          {/* A — Trusted (small) */}
+          {/* A - Trusted (small) */}
           <Reveal className="relative overflow-hidden rounded-[20px] border border-[#ecedf4] bg-[#f6f7fb] p-7">
             <CornerBlob />
             <span className="relative flex h-11 w-11 items-center justify-center rounded-[13px] bg-[#eaeeff] text-[#2847d3]">
@@ -48,12 +48,12 @@ export function WhyChooseUs() {
               Trusted by Rwanda&apos;s organisations
             </h3>
             <p className="relative mt-2 text-[13.5px] leading-relaxed text-[#5c6276]">
-              Companies across Kigali — from cooperatives to startups — post real
+              Companies across Kigali - from cooperatives to startups - post real
               briefs and judge students on the work they actually deliver, not a CV.
             </p>
           </Reveal>
 
-          {/* B — Fast (small) */}
+          {/* B - Fast (small) */}
           <Reveal delay={110} className="relative overflow-hidden rounded-[20px] border border-[#ecedf4] bg-[#f6f7fb] p-7">
             <CornerBlob />
             <span className="relative flex h-11 w-11 items-center justify-center rounded-[13px] bg-[#eaeeff] text-[#2847d3]">
@@ -68,7 +68,7 @@ export function WhyChooseUs() {
             </p>
           </Reveal>
 
-          {/* D — Scalable (accent, tall, right) */}
+          {/* D - Scalable (accent, tall, right) */}
           <Reveal
             variant="zoom"
             delay={160}
@@ -86,7 +86,7 @@ export function WhyChooseUs() {
             </h3>
             <p className="mt-3 text-[14px] leading-relaxed text-[#cdd6f5]">
               Whether you&apos;re making your first hire or building a whole team,
-              D·Pathway grows with you — from a single brief to a steady pipeline of
+              D·Pathway grows with you - from a single brief to a steady pipeline of
               proven, interview-ready talent.
             </p>
             <Link
@@ -97,7 +97,7 @@ export function WhyChooseUs() {
             </Link>
           </Reveal>
 
-          {/* C — Quality (wide, bottom-left) */}
+          {/* C - Quality (wide, bottom-left) */}
           <Reveal delay={80} className="relative overflow-hidden rounded-[20px] border border-[#ecedf4] bg-[#f6f7fb] p-7 md:col-span-2 md:col-start-1 md:row-start-2">
             <CornerBlob />
             <span className="relative flex h-11 w-11 items-center justify-center rounded-[13px] bg-[#eaeeff] text-[#2847d3]">
@@ -108,7 +108,7 @@ export function WhyChooseUs() {
             </h3>
             <p className="relative mt-2 max-w-2xl text-[13.5px] leading-relaxed text-[#5c6276]">
               You won&apos;t drown in applications that don&apos;t fit. You get real,
-              bounded deliverables from motivated students — concrete work you can
+              bounded deliverables from motivated students - concrete work you can
               assess side by side, so the decision is about substance, not polish.
             </p>
           </Reveal>

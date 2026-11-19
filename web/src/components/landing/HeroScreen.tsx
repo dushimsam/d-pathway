@@ -146,7 +146,7 @@ export function HeroScreen({ home }: { home: string | null }) {
 
             <p className="mt-4 max-w-[430px] text-[15.5px] leading-relaxed text-[#cdd6f5]">
               {isStudent
-                ? "Win real briefs from Kigali's companies — judged on the work you deliver, not your CV."
+                ? "Win real briefs from Kigali's companies - judged on the work you deliver, not your CV."
                 : "Post a brief, review real deliverables from Kigali's sharpest students, and invite the best to interview."}
             </p>
 

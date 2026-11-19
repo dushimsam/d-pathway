@@ -35,7 +35,7 @@ import { ReviewsModule } from './modules/reviews/reviews.module.js';
           transport: config.isProduction
             ? undefined
             : { target: 'pino-pretty', options: { singleLine: true } },
-          // Log only what's useful — never the headers, which carry the JWT and
+          // Log only what's useful - never the headers, which carry the JWT and
           // cookies. These serializers replace pino's verbose defaults.
           serializers: {
             req: (req: { id: unknown; method: string; url: string }) => ({

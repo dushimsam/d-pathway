@@ -185,7 +185,7 @@ describe('CompaniesService.updateMe', () => {
       name: '   ',
     } as never);
     expect(result.name).toBe('Acme');
-    // Only getByUserIdOrThrow ran — no clash lookup.
+    // Only getByUserIdOrThrow ran - no clash lookup.
     expect(ctx.companies.findOne).toHaveBeenCalledTimes(1);
   });
 

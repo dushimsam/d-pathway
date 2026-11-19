@@ -164,7 +164,7 @@ export default function SubmitDeliverablePage({
 
         {app.evaluation?.stale && (
           <p className="rounded-[8px] border border-warning-50 bg-warning-50 p-3 text-[14px] text-n700">
-            You resubmitted after your evaluation — the reviewer has been asked to
+            You resubmitted after your evaluation - the reviewer has been asked to
             take another look.
           </p>
         )}

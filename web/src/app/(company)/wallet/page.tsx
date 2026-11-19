@@ -47,7 +47,7 @@ function WalletInner() {
         .then((r) => {
           setNotice(
             r.credited
-              ? `Top-up successful — ${formatMoney(r.amount ?? 0, data?.currency)} added.`
+              ? `Top-up successful - ${formatMoney(r.amount ?? 0, data?.currency)} added.`
               : 'This top-up was already applied.',
           );
           queryClient.invalidateQueries({ queryKey: ['wallet'] });

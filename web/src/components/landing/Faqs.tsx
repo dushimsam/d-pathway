@@ -1,11 +1,11 @@
 const FAQS: Array<{ q: string; a: string }> = [
   {
     q: 'What is D·Pathway?',
-    a: "A project platform where Kigali's students prove themselves on real, bounded briefs from organisations — judged on the work they deliver, not a CV.",
+    a: "A project platform where Kigali's students prove themselves on real, bounded briefs from organisations - judged on the work they deliver, not a CV.",
   },
   {
     q: 'Who can use D·Pathway?',
-    a: 'Any organisation in Rwanda — from cooperatives and small businesses to startups and larger companies — plus students and recent graduates.',
+    a: 'Any organisation in Rwanda - from cooperatives and small businesses to startups and larger companies - plus students and recent graduates.',
   },
   {
     q: 'Is D·Pathway free to use?',
@@ -17,11 +17,11 @@ const FAQS: Array<{ q: string; a: string }> = [
   },
   {
     q: 'How do I post a brief?',
-    a: "Create an organisation account, click 'New project,' and fill in the brief, deadlines, deliverable format and IP terms — it takes a few minutes.",
+    a: "Create an organisation account, click 'New project,' and fill in the brief, deadlines, deliverable format and IP terms - it takes a few minutes.",
   },
   {
     q: 'Can students work in teams?',
-    a: 'Yes. A student applies as the lead and invites teammates. Accepting the application accepts the whole team — up to four people.',
+    a: 'Yes. A student applies as the lead and invites teammates. Accepting the application accepts the whole team - up to four people.',
   },
   {
     q: 'How are students matched to my brief?',
@@ -29,21 +29,21 @@ const FAQS: Array<{ q: string; a: string }> = [
   },
   {
     q: 'Can I edit an evaluation or allow a resubmission?',
-    a: 'Yes. Organisations can edit an evaluation, and students can resubmit after feedback — the evaluation is then flagged for a quick re-review.',
+    a: 'Yes. Organisations can edit an evaluation, and students can resubmit after feedback - the evaluation is then flagged for a quick re-review.',
   },
   {
     q: 'Can I contact the students directly?',
-    a: 'Once you select a team and review their work, you invite the strongest to an interview — arranged directly with them, off-platform.',
+    a: 'Once you select a team and review their work, you invite the strongest to an interview - arranged directly with them, off-platform.',
   },
   {
     q: 'Who owns the work and the IP?',
-    a: "Every brief states its IP terms up front, and students accept them before applying — so ownership is clear and agreed before any work starts.",
+    a: "Every brief states its IP terms up front, and students accept them before applying - so ownership is clear and agreed before any work starts.",
   },
 ];
 
 import { Reveal } from './Reveal';
 
-/** Landing FAQ — two-column Q&A with "?" badges, matching the reference. */
+/** Landing FAQ - two-column Q&A with "?" badges, matching the reference. */
 export function Faqs() {
   return (
     <section id="faqs" className="bg-[#f1f3fd] text-[#0b1020]">

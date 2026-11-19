@@ -48,7 +48,7 @@ const JOB_OPTS = {
 
 /**
  * Publishes domain events to the BullMQ queue. Producers never write the
- * activity row directly — the worker does, asynchronously, with retries.
+ * activity row directly - the worker does, asynchronously, with retries.
  */
 @Injectable()
 export class EventsPublisher {

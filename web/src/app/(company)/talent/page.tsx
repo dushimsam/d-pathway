@@ -27,7 +27,7 @@ export default function TalentPage() {
     <div>
       <PageHeader
         title="Talent"
-        description="Discover students by skill — and by the real, scored work they've delivered."
+        description="Discover students by skill - and by the real, scored work they've delivered."
       />
 
       <form
@@ -108,7 +108,7 @@ export default function TalentPage() {
               <div className="mt-auto flex items-center gap-4 border-t border-n100 pt-3 text-[13px] text-n700">
                 <span className="inline-flex items-center gap-1">
                   <Star className="h-4 w-4 fill-warning text-warning" />
-                  {t.stats.briefsCompleted > 0 ? `${t.stats.avgScore}/5` : '—'}
+                  {t.stats.briefsCompleted > 0 ? `${t.stats.avgScore}/5` : '-'}
                 </span>
                 <span>{t.stats.briefsCompleted} briefs</span>
                 {t.stats.prizesWon > 0 && (

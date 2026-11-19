@@ -89,12 +89,22 @@ export function TagInput({
       ))}
       <input
         id={id}
+        name={id}
+        type="text"
         value={draft}
         disabled={disabled}
         onChange={(e) => setDraft(e.target.value)}
         onKeyDown={onKeyDown}
         onBlur={() => add(draft)}
         placeholder={value.length === 0 ? placeholder : ''}
+        // Stop browsers/password managers from autofilling the account email or
+        // username into this chip input (e.g. the "Portfolio links" field).
+        autoComplete="off"
+        autoCapitalize="none"
+        autoCorrect="off"
+        spellCheck={false}
+        data-1p-ignore
+        data-lpignore="true"
         className="min-w-[140px] flex-1 bg-transparent px-1 py-0.5 text-n900 outline-none placeholder:text-n500"
       />
     </div>

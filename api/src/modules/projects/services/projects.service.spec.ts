@@ -381,22 +381,35 @@ describe('ProjectsService.close', () => {
   });
 
   it('closes an IN_PROGRESS project', async () => {
-    ctx.projects.findOne.mockResolvedValue(draftProject({ status: ProjectStatus.IN_PROGRESS }));
-    ctx.projects.save.mockImplementation(async (e: unknown) => e);
+    ctx.em.findOne.mockResolvedValue(draftProject({ status: ProjectStatus.IN_PROGRESS }));
     const saved = await ctx.service.close('u1', 'p1');
     expect(saved.status).toBe(ProjectStatus.CLOSED);
     expect(ctx.cache.invalidatePrefix).toHaveBeenCalled();
   });
 
+  it('refunds a held prize when closing without awarding', async () => {
+    ctx.em.findOne.mockResolvedValue(
+      draftProject({
+        status: ProjectStatus.IN_PROGRESS,
+        prizeAmount: 30_000,
+        prizeStatus: PrizeStatus.HELD,
+      }),
+    );
+    const saved = await ctx.service.close('u1', 'p1');
+    expect(ctx.wallet.refundPrize).toHaveBeenCalled();
+    expect(saved.prizeStatus).toBe(PrizeStatus.REFUNDED);
+    expect(saved.status).toBe(ProjectStatus.CLOSED);
+  });
+
   it('forbids a non-owner', async () => {
-    ctx.projects.findOne.mockResolvedValue(
+    ctx.em.findOne.mockResolvedValue(
       draftProject({ status: ProjectStatus.IN_PROGRESS, companyId: 'other' }),
     );
     await expect(ctx.service.close('u1', 'p1')).rejects.toBeInstanceOf(ForbiddenException);
   });
 
   it('rejects closing a non-IN_PROGRESS project', async () => {
-    ctx.projects.findOne.mockResolvedValue(draftProject({ status: ProjectStatus.OPEN }));
+    ctx.em.findOne.mockResolvedValue(draftProject({ status: ProjectStatus.OPEN }));
     await expect(ctx.service.close('u1', 'p1')).rejects.toBeInstanceOf(ConflictException);
   });
 });

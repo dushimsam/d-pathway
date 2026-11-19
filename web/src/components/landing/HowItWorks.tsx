@@ -6,13 +6,13 @@ const STEPS = [
     n: '01',
     Icon: FileText,
     title: 'An organisation posts a brief',
-    body: 'A real, bounded project — with a deadline, a deliverable format and clear IP terms. No busywork, no trick take-homes.',
+    body: 'A real, bounded project - with a deadline, a deliverable format and clear IP terms. No busywork, no trick take-homes.',
   },
   {
     n: '02',
     Icon: UploadCloud,
     title: 'Students deliver the work',
-    body: 'They accept the terms and submit one real deliverable — solo, or as a small team led by one student.',
+    body: 'They accept the terms and submit one real deliverable - solo, or as a small team led by one student.',
   },
   {
     n: '03',
@@ -23,7 +23,7 @@ const STEPS = [
 ];
 
 /**
- * Landing second section — "How it works". Light band that flows out of the
+ * Landing second section - "How it works". Light band that flows out of the
  * white hero, with the blue theme and a highlighter-marker keyword.
  */
 export function HowItWorks() {
@@ -41,7 +41,7 @@ export function HowItWorks() {
             </span>
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-[16px] leading-relaxed text-[#5c6276]">
-            One loop, end to end — a company sets a real problem, students prove
+            One loop, end to end - a company sets a real problem, students prove
             themselves on it, and the work does the talking.
           </p>
         </Reveal>

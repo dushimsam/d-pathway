@@ -55,7 +55,7 @@ export default function CataloguePage() {
   });
 
   const mine = useMyApplications();
-  // The catalogue is for discovery — projects you've already applied to move to
+  // The catalogue is for discovery - projects you've already applied to move to
   // the Applications tab, so hide them here.
   const allItems = projectsQuery.data?.items ?? [];
   const visibleItems = allItems.filter((p) => !mine.byProjectId.has(p.id));

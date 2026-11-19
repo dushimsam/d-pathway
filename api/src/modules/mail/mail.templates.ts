@@ -23,7 +23,7 @@ function shell(heading: string, body: string): string {
 export const emailTemplates = {
   applicationAccepted(projectTitle: string, companyName: string) {
     return {
-      subject: `You're in — ${projectTitle}`,
+      subject: `You're in - ${projectTitle}`,
       html: shell(
         'Your application was accepted 🎉',
         `<p><strong>${companyName}</strong> selected you for <strong>${projectTitle}</strong>.</p>
@@ -37,18 +37,18 @@ export const emailTemplates = {
     reason?: string | null,
   ) {
     return {
-      subject: `Update on your application — ${projectTitle}`,
+      subject: `Update on your application - ${projectTitle}`,
       html: shell(
         'An update on your application',
         `<p><strong>${companyName}</strong> won't be moving forward with your application for <strong>${projectTitle}</strong> this time.</p>
          ${reason ? `<p style="color:#5c6276;"><em>“${reason}”</em></p>` : ''}
-         <p>Keep going — there are more briefs waiting in the catalogue.</p>`,
+         <p>Keep going - there are more briefs waiting in the catalogue.</p>`,
       ),
     };
   },
   deliverableSubmitted(projectTitle: string, graduateName: string) {
     return {
-      subject: `New submission — ${projectTitle}`,
+      subject: `New submission - ${projectTitle}`,
       html: shell(
         'A deliverable is ready to review',
         `<p><strong>${graduateName}</strong> submitted work for <strong>${projectTitle}</strong>.</p>
@@ -59,7 +59,7 @@ export const emailTemplates = {
   evaluationRecorded(projectTitle: string, score: number, outcome: string) {
     const nice = outcome.replace(/_/g, ' ').toLowerCase();
     return {
-      subject: `Your work was reviewed — ${projectTitle}`,
+      subject: `Your work was reviewed - ${projectTitle}`,
       html: shell(
         'Your submission was evaluated',
         `<p>Your work for <strong>${projectTitle}</strong> scored <strong>${score}/5</strong>.</p>
@@ -75,11 +75,11 @@ export const emailTemplates = {
   ) {
     const money = `${currency.toUpperCase()} ${amount.toLocaleString('en-US')}`;
     return {
-      subject: `You won the prize — ${projectTitle} 🏆`,
+      subject: `You won the prize - ${projectTitle} 🏆`,
       html: shell(
         `You've been awarded ${money}`,
         `<p><strong>${companyName}</strong> marked you as the winner of <strong>${projectTitle}</strong>.</p>
-         <p><strong>${money}</strong> has been added to your D·Pathway balance — you can cash it out from your earnings page.</p>`,
+         <p><strong>${money}</strong> has been added to your D·Pathway balance - you can cash it out from your earnings page.</p>`,
       ),
     };
   },

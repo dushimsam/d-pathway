@@ -400,7 +400,7 @@ function ProjectBuilder() {
                 </span>
                 {prizeExceedsBalance ? (
                   <span className="font-medium text-danger">
-                    Over balance —{' '}
+                    Over balance -{' '}
                     <Link href="/wallet" className="underline">
                       top up
                     </Link>

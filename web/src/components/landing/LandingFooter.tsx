@@ -57,7 +57,7 @@ export function LandingFooter() {
               </span>
             </Link>
             <p className="mt-4 text-[14px] leading-relaxed text-[#cdd6f8]">
-              A project platform for Kigali&apos;s students and graduates — real
+              A project platform for Kigali&apos;s students and graduates - real
               briefs, honest scores, direct interviews.
             </p>
             <span className="mt-4 inline-block font-mono text-[12px] uppercase tracking-[0.12em] text-[#bcd0ff]">

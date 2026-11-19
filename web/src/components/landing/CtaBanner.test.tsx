@@ -6,7 +6,7 @@ describe('CtaBanner', () => {
   it('renders the headline and call-to-action links', () => {
     render(<CtaBanner />);
     expect(
-      screen.getByText('Kick off your hiring now — quick and easy!'),
+      screen.getByText('Kick off your hiring now - quick and easy!'),
     ).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Get started' })).toHaveAttribute(
       'href',

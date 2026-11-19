@@ -4,16 +4,16 @@ export class AddStudentFeatures1792480000000 implements MigrationInterface {
     name = 'AddStudentFeatures1792480000000'
 
     public async up(queryRunner: QueryRunner): Promise<void> {
-        // S2 — graduate profile photo
+        // S2 - graduate profile photo
         await queryRunner.query(`ALTER TABLE "graduates" ADD "photo_url" character varying`);
         await queryRunner.query(`ALTER TABLE "graduates" ADD "photo_public_id" character varying`);
 
-        // S6 — new activity types (Postgres enum additions must be committed before use)
+        // S6 - new activity types (Postgres enum additions must be committed before use)
         await queryRunner.query(`ALTER TYPE "public"."activities_type_enum" ADD VALUE IF NOT EXISTS 'APPLICATION_ACCEPTED'`);
         await queryRunner.query(`ALTER TYPE "public"."activities_type_enum" ADD VALUE IF NOT EXISTS 'APPLICATION_DECLINED'`);
         await queryRunner.query(`ALTER TYPE "public"."activities_type_enum" ADD VALUE IF NOT EXISTS 'PRIZE_AWARDED'`);
 
-        // S5 — saved (bookmarked) briefs
+        // S5 - saved (bookmarked) briefs
         await queryRunner.query(`
             CREATE TABLE "saved_briefs" (
                 "id" uuid NOT NULL DEFAULT uuid_generate_v4(),

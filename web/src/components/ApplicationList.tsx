@@ -51,10 +51,10 @@ export function ApplicationList({ applications }: { applications: MyApplication[
             <div className="flex items-center justify-between rounded-[8px] bg-primary-50 p-3">
               <span className="text-[14px] text-primary-dark">
                 {a.role === 'MEMBER'
-                  ? 'You are on this team — your lead submits the deliverable.'
+                  ? 'You are on this team - your lead submits the deliverable.'
                   : a.deliverable
                     ? 'Deliverable submitted. You can still update it.'
-                    : 'You were accepted — submit your deliverable before the deadline.'}
+                    : 'You were accepted - submit your deliverable before the deadline.'}
               </span>
               <Link href={`/applications/${a.id}/submit`}>
                 <Button size="sm">

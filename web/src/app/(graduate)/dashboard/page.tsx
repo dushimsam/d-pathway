@@ -9,6 +9,7 @@ import { Card } from '@/components/ui/Card';
 import { ErrorState, Skeleton } from '@/components/ui/States';
 import { ActivityFeed } from '@/components/ActivityFeed';
 import { InvitationsInbox } from '@/components/InvitationsInbox';
+import { StatusPill } from '@/components/ui/StatusPill';
 import { api } from '@/lib/api-client';
 import type { GraduateDashboard, GraduateProfile } from '@/lib/types';
 
@@ -22,7 +23,7 @@ export default function GraduateDashboardPage() {
     queryFn: () => api.get<GraduateProfile>('/graduates/me'),
   });
 
-  // What's missing from the profile — drives Talent-search visibility & matching.
+  // What's missing from the profile - drives Talent-search visibility & matching.
   const missing: string[] = [];
   if (me) {
     if (me.skills.length === 0) missing.push('skills');
@@ -84,7 +85,7 @@ export default function GraduateDashboardPage() {
             </p>
             <p className="mt-1 text-[14px] text-n700">
               {data.invitations
-                .map((i) => `${i.companyName} — ${i.projectTitle}`)
+                .map((i) => `${i.companyName} - ${i.projectTitle}`)
                 .join('; ')}
               . The company will arrange the interview with you off-platform.
             </p>
@@ -108,23 +109,39 @@ export default function GraduateDashboardPage() {
         ))}
       </Link>
 
-      <div className="mb-8 flex items-center justify-between">
-        <div>
-          <h2 className="text-[16px] font-semibold text-n900">Your applications</h2>
-          <p className="text-[13px] text-n500">
-            {data.applications.length === 0
-              ? 'You have not applied to any projects yet.'
-              : `You've applied to ${data.applications.length} project${
-                  data.applications.length > 1 ? 's' : ''
-                }.`}
-          </p>
-        </div>
+      <div className="mb-3 flex items-center justify-between">
+        <h2 className="text-[16px] font-semibold text-n900">Recent applications</h2>
         <Link href={data.applications.length === 0 ? '/catalogue' : '/applications'}>
           <Button variant="secondary" size="sm">
-            {data.applications.length === 0 ? 'Browse catalogue' : 'View applications'}
+            {data.applications.length === 0 ? 'Browse catalogue' : 'View all'}
           </Button>
         </Link>
       </div>
+      {data.applications.length === 0 ? (
+        <Card className="mb-8 text-[14px] text-n500">
+          You have not applied to any projects yet.
+        </Card>
+      ) : (
+        <div className="mb-8 flex flex-col gap-2">
+          {data.applications.slice(0, 5).map((a) => (
+            <Link
+              key={a.id}
+              href="/applications"
+              className="flex items-center justify-between gap-3 rounded-[10px] border border-n300 bg-n0 px-4 py-3 transition-colors hover:border-primary"
+            >
+              <div className="min-w-0">
+                <p className="truncate text-[14px] font-medium text-n900">
+                  {a.project.title}
+                </p>
+                <p className="truncate text-[12px] text-n500">
+                  {a.project.company.name}
+                </p>
+              </div>
+              <StatusPill status={a.status} />
+            </Link>
+          ))}
+        </div>
+      )}
 
       <ActivityFeed />
     </div>

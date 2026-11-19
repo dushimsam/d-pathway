@@ -16,7 +16,7 @@ import {
 const SEED_BALANCE = 1_000_000;
 
 /**
- * Pilot seed. The platform is for any organisation posting real work — not just
+ * Pilot seed. The platform is for any organisation posting real work - not just
  * tech companies, but cooperatives and small community groups too. The seed
  * mixes a tailors' cooperative, a farmers' cooperative and a youth media group.
  * Some projects carry a cash prize (Devpost-style); most do not. Idempotent:
