@@ -100,8 +100,8 @@ export function LandingFooter() {
               © 2026 D·Pathway · Kigali, Rwanda.
             </span>
             <div className="flex items-center gap-6 text-[13px] text-[#c4ccec]">
-              <a href="#why" className="transition-colors hover:text-white">Privacy</a>
-              <a href="#why" className="transition-colors hover:text-white">Terms</a>
+              <Link href="/privacy" className="transition-colors hover:text-white">Privacy</Link>
+              <Link href="/terms" className="transition-colors hover:text-white">Terms</Link>
               <a href="#why" className="transition-colors hover:text-white">Sovereignty</a>
             </div>
           </div>

@@ -83,6 +83,11 @@ export default function RegisterGraduatePage() {
         <Field label="Location" htmlFor="location" error={errors.location?.message} hint="e.g. Kigali, Gasabo">
           <Input id="location" {...register('location')} />
         </Field>
+        <p className="text-[13px] leading-relaxed text-dim">
+          By creating an account, you agree to our{' '}
+          <Link href="/terms" className="text-teal hover:underline">Terms of Use</Link> and{' '}
+          <Link href="/privacy" className="text-teal hover:underline">Privacy Policy</Link>.
+        </p>
         {formError && <p className="text-[14px] text-danger">{formError}</p>}
         <Button
           type="submit"

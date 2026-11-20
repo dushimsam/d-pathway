@@ -71,6 +71,11 @@ export default function RegisterCompanyPage() {
         <Field label="Password" htmlFor="password" error={errors.password?.message}>
           <Input id="password" type="password" autoComplete="new-password" {...register('password')} />
         </Field>
+        <p className="text-[13px] leading-relaxed text-dim">
+          By creating an account, you agree to our{' '}
+          <Link href="/terms" className="text-teal hover:underline">Terms of Use</Link> and{' '}
+          <Link href="/privacy" className="text-teal hover:underline">Privacy Policy</Link>.
+        </p>
         {formError && <p className="text-[14px] text-danger">{formError}</p>}
         <Button
           type="submit"
