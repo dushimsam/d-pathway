@@ -5,11 +5,11 @@ import { LegalPage, LegalSection } from '@/components/legal/LegalPage';
 export const metadata: Metadata = {
   title: 'Privacy Policy - D-Pathway',
   description:
-    'How D-Pathway collects, uses, and protects your personal data, and your rights under Rwanda Law No. 058/2021.',
+    'In plain words: what information D-Pathway keeps, why, who can see it, and your rights.',
 };
 
-// TODO: publish a real contact email for privacy requests and data-rights
-// requests. There is no contact address anywhere in the codebase yet.
+// TODO: publish a real contact email for privacy and data questions.
+// There is no contact address anywhere in the codebase yet.
 const CONTACT = '[contact email to be added]';
 
 export default function PrivacyPage() {
@@ -17,154 +17,159 @@ export default function PrivacyPage() {
     <LegalPage
       title="Privacy Policy"
       lastUpdated="20 November 2026"
-      intro="This policy explains, in plain language, what personal data D-Pathway collects, why, who can see it, and the rights you have over it."
+      intro="This page tells you how we handle your information. We wrote it in plain words."
     >
-      <LegalSection title="Who we are">
+      <LegalSection title="Who are we?">
         <p>
-          D-Pathway is a student capstone project built at African Leadership
-          University (ALU) in Kigali, Rwanda. It connects companies that post
-          real projects with graduates who apply, submit work, and receive
-          feedback. This is a pilot, not a commercial company.
+          D-Pathway is a student project. We built it at African Leadership
+          University (ALU) in Kigali, Rwanda.
         </p>
-        <p>For privacy questions, email us at {CONTACT}.</p>
+        <p>
+          Companies post projects. Graduates do the work and get feedback. This
+          is a test project, not a business.
+        </p>
+        <p>Do you have a question? Email us at {CONTACT}.</p>
       </LegalSection>
 
-      <LegalSection title="What we collect">
+      <LegalSection title="What do we collect?">
+        <p>We only keep what you type. We also keep what we need to run the site.</p>
         <p>
-          We only store what you enter and what the platform needs to run. For
-          every account we keep your email, a hashed password, and your role
-          (graduate or company).
+          For every account, we keep three things. Your email, your role, and
+          your password. Your role is &quot;graduate&quot; or &quot;company&quot;.
         </p>
         <p>
-          Graduates: full name, education, skills, portfolio links, location,
-          and an optional profile photo. Companies: company name, and optionally
-          an industry, description, representative title, logo, website,
-          location and size.
+          We never store your real password. We store a scrambled version. This
+          scrambled version is called a &quot;hash&quot;.
         </p>
         <p>
-          We also store your applications, the deliverables you submit (a link
-          and/or an uploaded file, plus a note), the evaluations companies
-          record, and your wallet ledger entries (prize holds, payouts, refunds
-          and top-ups).
-        </p>
-      </LegalSection>
-
-      <LegalSection title="Why we collect it">
-        <p>
-          We use your data only to run the core workflow: posting projects,
-          applying to them, submitting deliverables, evaluating them, and
-          tracking prize balances.
+          If you are a graduate, we keep your name, school, skills, links, and
+          town. You can also add a photo.
         </p>
         <p>
-          We do not sell your data, we do not show advertising, and we do not
-          share your data with anyone outside the services listed below.
+          If you are a company, we keep your company name. You can also add more
+          details. These are your industry, description, job title, logo,
+          website, town, and size.
+        </p>
+        <p>
+          We also keep your applications and the work you send. We keep the
+          scores companies give. We also keep your wallet history. It shows prize
+          money that was locked, paid out, or given back. It also shows money you
+          added.
         </p>
       </LegalSection>
 
-      <LegalSection title="Who can see what">
+      <LegalSection title="Why do we collect it?">
         <p>
-          A deliverable is private. Only the graduate who submitted it (and
-          accepted teammates) and the company that posted the project can view
-          it; the API rejects anyone else. The same rule applies to an
-          evaluation: only the graduate it concerns and the owning company can
-          read it.
+          We use your information to run the site. That means posting projects,
+          applying, sending work, scoring it, and tracking prize money.
         </p>
         <p>
-          Companies see the applicants to their own projects; graduates see only
-          their own applications. A graduate&apos;s public profile (name,
-          skills, and completed-work stats) is visible to anyone with the link.
+          We do not sell your information. We do not show ads. We do not give it
+          to anyone else, apart from the helpers below.
         </p>
       </LegalSection>
 
-      <LegalSection title="Third-party services">
+      <LegalSection title="Who can see your work?">
         <p>
-          A few outside services power specific features. Cloudinary stores
-          uploaded files - your browser uploads directly to Cloudinary, and our
-          server never receives the file bytes. Stripe handles wallet top-ups
-          and currently runs in test mode only. Resend sends email
-          notifications when it is configured.
+          Your work is private. Only you and the company that posted the project
+          can see it. If you work in a team, your teammates can see it too.
         </p>
-        <p>These services may store data on servers outside Rwanda.</p>
-      </LegalSection>
-
-      <LegalSection title="Where your data is stored">
+        <p>Scores work the same way. Only you and that company can see your score.</p>
         <p>
-          Your account and project data live in a PostgreSQL database on a
-          server in Kigali, Rwanda.
+          Companies see the people who applied to their own projects. You see
+          only your own applications.
+        </p>
+        <p>
+          Your public profile is open. Anyone with the link can see your name,
+          your skills, and your work stats.
         </p>
       </LegalSection>
 
-      <LegalSection title="How we protect it">
+      <LegalSection title="What outside services do we use?">
+        <p>We use a few outside helpers for some jobs.</p>
         <p>
-          Passwords are never stored in plain text; we hash them with bcrypt.
-          All traffic uses HTTPS. Access is role-based: the server checks your
-          identity and role on every request and returns only data you are
-          allowed to see. Your login token is kept in an HTTP-only cookie that
-          browser scripts cannot read.
+          Cloudinary keeps your uploaded files. Your file goes straight from your
+          browser to Cloudinary. Our server never touches the file.
+        </p>
+        <p>
+          Stripe handles adding money to wallets. Right now it runs in test mode
+          only.
+        </p>
+        <p>Resend sends emails, when it is turned on.</p>
+        <p>These helpers may keep data on computers outside Rwanda.</p>
+      </LegalSection>
+
+      <LegalSection title="Where do we keep your data?">
+        <p>
+          Your data lives in a database on a computer in Kigali, Rwanda. A
+          database is a place that stores information.
         </p>
       </LegalSection>
 
-      <LegalSection title="How decisions are made">
+      <LegalSection title="How do we keep it safe?">
+        <p>We scramble every password, so no one can read it.</p>
+        <p>The site uses HTTPS. This means your connection is locked and private.</p>
         <p>
-          Every evaluation is made by a person at the company. They choose the
-          score, write the feedback, and set the outcome. No automated system
-          scores your work or decides interview invitations.
+          We check who you are on every request. We only show you what you are
+          allowed to see.
+        </p>
+        <p>
+          Your login code sits in a special cookie. Scripts in your browser
+          cannot read it.
         </p>
       </LegalSection>
 
-      <LegalSection title="Your rights (Rwanda Law No. 058/2021)">
+      <LegalSection title="Who makes the decisions?">
         <p>
-          Rwanda&apos;s Law No. 058/2021 on the protection of personal data and
-          privacy gives you the following rights:
+          A real person at the company scores your work. They pick the score,
+          write the notes, and choose the result.
         </p>
-        <ul className="ml-5 list-disc space-y-2">
+        <p>No robot or computer decides anything about you.</p>
+      </LegalSection>
+
+      <LegalSection title="What are your rights?">
+        <p>Rwanda has a data law. It gives you these rights (Law No. 058/2021).</p>
+        <ul className="ml-5 list-disc space-y-3">
           <li>
-            <strong>Consent and withdrawing it (Arts. 6 and 8).</strong> You
-            give consent by creating an account. You can withdraw it at any time
-            by deleting your account (graduates: Profile; companies: Settings),
-            which removes your profile and its data.
+            <strong>You can say yes, and change your mind.</strong> You say yes
+            when you make an account. You can change your mind any time. Just
+            delete your account (Articles 6 and 8).
           </li>
           <li>
-            <strong>Access to your data (Art. 18).</strong> You can see the data
-            we hold about you inside the app: your profile, applications,
-            deliverables, evaluations and wallet. A one-click export is not built
-            yet; email us at {CONTACT} to request a copy.
+            <strong>You can see your data.</strong> You can view your profile,
+            applications, work, scores, and wallet in the app. We cannot export
+            it in one click yet. Email us at {CONTACT} for a copy (Article 18).
           </li>
           <li>
-            <strong>Correction (Art. 24).</strong> Edit your profile at any time
-            (graduates: Profile; companies: Settings), and change your password
-            from the same place.
+            <strong>You can fix your data.</strong> Edit your profile any time.
+            You can change your password there too (Article 24).
           </li>
           <li>
-            <strong>Erasure (Art. 23).</strong> Delete your account from
-            Profile or Settings. This permanently removes your account and
-            cascades to your profile, applications, deliverables and evaluations.
+            <strong>You can delete your data.</strong> Delete your account from
+            your profile or settings. This removes your account and all your data
+            (Article 23).
           </li>
           <li>
-            <strong>Not being subject to solely automated decisions (Art. 21).</strong>{' '}
-            No decision about you is made by an automated system - a person at
-            the company makes every evaluation and interview decision.
+            <strong>No robot decides about you.</strong> A real person makes
+            every score and every interview choice (Article 21).
           </li>
         </ul>
       </LegalSection>
 
-      <LegalSection title="How long we keep data">
-        <p>
-          We keep your data while your account exists. When you delete your
-          account, your personal data is removed.
-        </p>
-        {/* TODO: a fixed retention schedule for any residual records (e.g.
-            wallet ledger for audit) is not defined in the code. */}
-        <p>
-          A fixed retention schedule for any residual records is not defined
-          yet.
-        </p>
+      <LegalSection title="How long do we keep your data?">
+        <p>We keep your data while your account is open.</p>
+        <p>When you delete your account, we remove your data.</p>
+        {/* TODO: a fixed time to keep old records (e.g. wallet history) is not
+            set in the code. */}
+        <p>We have not set a fixed time to keep old records yet.</p>
       </LegalSection>
 
-      <LegalSection title="Changes to this policy">
+      <LegalSection title="Will this policy change?">
         <p>
-          If we change this policy, we will update the date at the top of this
-          page. You can also review our{' '}
+          We may change this page. If we do, we will change the date at the top.
+        </p>
+        <p>
+          You can also read our{' '}
           <Link href="/terms" className="text-[#2847d3] hover:underline">
             Terms of Use
           </Link>

@@ -5,10 +5,10 @@ import { LegalPage, LegalSection } from '@/components/legal/LegalPage';
 export const metadata: Metadata = {
   title: 'Terms of Use - D-Pathway',
   description:
-    'The rules for using D-Pathway: accounts, projects, deliverables, evaluations, intellectual property, and prizes.',
+    'In plain words: the rules for using D-Pathway. Accounts, projects, work, scores, and prizes.',
 };
 
-// TODO: publish a real contact email for terms questions.
+// TODO: publish a real contact email for questions about these terms.
 const CONTACT = '[contact email to be added]';
 
 export default function TermsPage() {
@@ -16,122 +16,112 @@ export default function TermsPage() {
     <LegalPage
       title="Terms of Use"
       lastUpdated="20 November 2026"
-      intro="These terms explain the rules for using D-Pathway. By creating an account you agree to them."
+      intro="These are the rules for using D-Pathway. When you make an account, you agree to them."
     >
-      <LegalSection n={1} title="About D-Pathway">
+      <LegalSection n={1} title="What is D-Pathway?">
         <p>
-          D-Pathway is a student capstone project built at African Leadership
-          University (ALU). Companies post projects, graduates apply and submit
-          deliverables, and companies evaluate the work. It is a pilot, not a
-          commercial service.
+          D-Pathway is a student project from African Leadership University (ALU).
+        </p>
+        <p>
+          Companies post projects. Graduates apply and send their work. Companies
+          then score the work. This is a test project, not a business.
         </p>
       </LegalSection>
 
-      <LegalSection n={2} title="Accounts and roles">
+      <LegalSection n={2} title="What about your account?">
+        <p>There are two kinds of accounts. One for graduates and one for companies.</p>
+        <p>Keep your login safe. You are responsible for anything done with your account.</p>
+      </LegalSection>
+
+      <LegalSection n={3} title="What must companies do?">
+        <p>Post only real problems. Post only work you are allowed to share.</p>
         <p>
-          There are two roles: graduate and company. You are responsible for
-          keeping your login details safe and for everything done under your
-          account.
+          You can edit a project while it is a draft. Once you publish it, you
+          cannot change it. The brief, the dates, the skills, and the rules are
+          then locked.
+        </p>
+        <p>You cannot delete a project after you accept someone. Close it instead.</p>
+        <p>
+          You give each piece of work one score. A score is 1 to 5, with notes
+          and a result. The graduate can see it.
         </p>
       </LegalSection>
 
-      <LegalSection n={3} title="For companies">
+      <LegalSection n={4} title="What must graduates do?">
+        <p>You must agree to a project&apos;s rules before you apply. We save the time you agree.</p>
+        <p>Send your work on time. We refuse a first submission after the deadline.</p>
         <p>
-          Post only real problems that you have the right to share. Once a
-          project is published (open for applications), its brief, deadlines,
-          required skills and IP terms are frozen - you can edit these only
-          while the project is still a draft.
-        </p>
-        <p>
-          You cannot delete a project once an applicant has been accepted; close
-          it instead. An evaluation (a score from 1 to 5, written feedback, and
-          an outcome) is recorded once per deliverable and is shown to the
-          graduate.
+          You can send a better version later. A new version replaces your old
+          one. It also tells the company to check your score again.
         </p>
       </LegalSection>
 
-      <LegalSection n={4} title="For graduates">
+      <LegalSection n={5} title="Who owns the work?">
         <p>
-          You must accept a project&apos;s terms before you can apply, and we
-          record the moment you accept them. Your first submission must be on or
-          before the project&apos;s submission deadline; late first submissions
-          are refused.
+          Each project has its own rules about who owns the work. You see these
+          rules before you apply. You must agree to them to apply. We save the
+          time you agree.
         </p>
         <p>
-          You can resubmit to improve your work. A resubmission replaces the link,
-          file and note on your single deliverable and flags any existing
-          evaluation so the company knows to review it again.
-        </p>
-      </LegalSection>
-
-      <LegalSection n={5} title="Intellectual property">
-        <p>
-          Each project states its own IP terms, which are shown to you before you
-          apply. You must accept them to apply, and your acceptance is recorded
-          with a timestamp.
+          The normal rule is simple. The company owns the work. You can still
+          show it in your portfolio.
         </p>
         <p>
-          The default terms assign the work to the company, while you keep the
-          right to describe it in your portfolio. This follows Rwanda&apos;s Law
-          No. 055/2024 on the protection of intellectual property, under which
-          assigning economic rights rests on the agreed terms (Arts. 316 and
-          319-320).
+          Rwanda has a law about this. Who owns the work depends on the rules you
+          agreed to (Law No. 055/2024, Articles 316 and 319 to 320).
         </p>
       </LegalSection>
 
-      <LegalSection n={6} title="Prizes and the wallet">
+      <LegalSection n={6} title="How do prizes work?">
         <p>
-          When a company creates a project with a cash prize, that amount is held
-          from the company&apos;s wallet. It is released to the one graduate the
-          company awards. It is refunded to the company if the project is deleted
-          before any applicant is accepted, if the prize is changed, or if the
-          project is closed without awarding. D-Pathway takes no fee.
+          A company can add a prize to a project. When they do, we lock that
+          money from their wallet. Locking means it is set aside and cannot be
+          spent.
         </p>
+        <p>We give the money to the one graduate the company picks.</p>
         <p>
-          Payments currently run in test mode only. No real money moves, and
-          payouts to mobile money are not yet available. D-Pathway is not a
-          payment service provider.
+          We give the money back to the company in three cases. If they delete
+          the project before accepting anyone. If they change the prize. If they
+          close the project without picking a winner.
         </p>
-      </LegalSection>
-
-      <LegalSection n={7} title="Interviews">
+        <p>We take no fee.</p>
         <p>
-          An interview invitation (the &quot;selected for interview&quot;
-          outcome) is not a job offer. The company arranges any interview with
-          you directly, off the platform.
+          Right now, payments run in test mode only. No real money moves. You
+          cannot cash out to mobile money yet. We are not a payment company.
         </p>
       </LegalSection>
 
-      <LegalSection n={8} title="Acceptable use">
-        <p>
-          Do not create fake companies or projects, do not submit work that is
-          not your own, and do not harass or abuse other users. Accounts that
-          break these rules may be removed.
-        </p>
-        {/* TODO: there is no admin suspension/moderation tooling in the code
-            yet; enforcement is manual. */}
+      <LegalSection n={7} title="Is an interview a job offer?">
+        <p>No. An interview invite is not a job offer.</p>
+        <p>The company sets up the interview with you off the site.</p>
       </LegalSection>
 
-      <LegalSection n={9} title="Ending your account">
-        <p>
-          You can delete your account at any time from Profile (graduates) or
-          Settings (companies). This permanently removes your account and
-          cascades to your profile, applications, deliverables and evaluations.
-        </p>
+      <LegalSection n={8} title="How must you behave?">
+        <p>Do not make fake companies or fake projects. Do not send work that is not yours.</p>
+        <p>Do not bully or abuse other people. We may remove accounts that break these rules.</p>
+        {/* TODO: there is no admin suspension/moderation tool in the code yet;
+            removal is manual. */}
       </LegalSection>
 
-      <LegalSection n={10} title="Limits of the service">
+      <LegalSection n={9} title="Can you delete your account?">
+        <p>Yes. You can delete your account any time.</p>
         <p>
-          D-Pathway is a student project, provided &quot;as is&quot; and without
-          warranties. It may change, pause, or go offline, and it is offered for
-          this pilot only.
+          Go to your profile (graduates) or settings (companies). This removes
+          your account and all your data.
         </p>
       </LegalSection>
 
-      <LegalSection n={11} title="Changes to these terms">
+      <LegalSection n={10} title="What are the limits?">
         <p>
-          We may update these terms and will change the date at the top of this
-          page. For questions, email us at {CONTACT}. You can also read our{' '}
+          D-Pathway is a student project. We give it to you &quot;as is&quot;. It
+          may change, pause, or stop. We make no promises about it.
+        </p>
+      </LegalSection>
+
+      <LegalSection n={11} title="Will these terms change?">
+        <p>We may change these rules. If we do, we will change the date at the top.</p>
+        <p>
+          Have a question? Email us at {CONTACT}. You can also read our{' '}
           <Link href="/privacy" className="text-[#2847d3] hover:underline">
             Privacy Policy
           </Link>
