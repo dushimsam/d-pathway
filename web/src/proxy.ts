@@ -2,8 +2,6 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { AUTH_COOKIE } from '@/lib/auth-cookie';
 import { UserRole } from '@/lib/types';
 
-const API_BASE_URL = process.env.API_BASE_URL ?? 'http://localhost:3001/api/v1';
-
 type Role = UserRole;
 
 /** Which role a protected path requires. null = any authenticated user. */
@@ -25,6 +23,37 @@ function requiredRole(pathname: string): Role | null {
 
 const homeFor = (role: Role) => (role === UserRole.COMPANY ? '/projects' : '/dashboard');
 
+/**
+ * Decode a JWT payload without verifying its signature. This is only used to
+ * route (which page to show); the API verifies the signature on every data
+ * request, so it stays the real security boundary. Reading the role from the
+ * token means middleware makes NO network call per navigation — which is faster
+ * and, crucially, can't log you out just because an /auth/me call hiccuped.
+ */
+function decodeToken(token: string): { role?: Role; exp?: number } | null {
+  try {
+    const part = token.split('.')[1];
+    if (!part) return null;
+    // base64url -> base64, then pad to a multiple of 4 (atob can be strict).
+    const b64 = part.replace(/-/g, '+').replace(/_/g, '/');
+    const padded = b64 + '==='.slice((b64.length + 3) % 4);
+    const json =
+      typeof atob === 'function'
+        ? atob(padded)
+        : Buffer.from(padded, 'base64').toString('utf8');
+    return JSON.parse(json) as { role?: Role; exp?: number };
+  } catch {
+    return null;
+  }
+}
+
+function toLogin(req: NextRequest, pathname: string): NextResponse {
+  const url = req.nextUrl.clone();
+  url.pathname = '/login';
+  url.searchParams.set('next', pathname);
+  return NextResponse.redirect(url);
+}
+
 export async function proxy(req: NextRequest): Promise<NextResponse> {
   const { pathname } = req.nextUrl;
   const role = requiredRole(pathname);
@@ -32,37 +61,21 @@ export async function proxy(req: NextRequest): Promise<NextResponse> {
   if (role === null) return NextResponse.next();
 
   const token = req.cookies.get(AUTH_COOKIE)?.value;
-  if (!token) {
-    const url = req.nextUrl.clone();
-    url.pathname = '/login';
-    url.searchParams.set('next', pathname);
-    return NextResponse.redirect(url);
+  if (!token) return toLogin(req, pathname);
+
+  // Resolve the role from the token itself — no per-navigation API call.
+  const payload = decodeToken(token);
+  const nowSec = Math.floor(Date.now() / 1000);
+  const expired = payload?.exp != null && payload.exp < nowSec;
+  if (!payload?.role || expired) {
+    // Missing or expired session: send to login and remember where to return.
+    return toLogin(req, pathname);
   }
 
-  // Resolve role server-side; the API is the authority.
-  let userRole: Role | null = null;
-  try {
-    const res = await fetch(`${API_BASE_URL}/auth/me`, {
-      headers: { Authorization: `Bearer ${token}` },
-      cache: 'no-store',
-    });
-    if (res.ok) {
-      const me = (await res.json()) as { role: Role };
-      userRole = me.role;
-    }
-  } catch {
-    userRole = null;
-  }
-
-  if (!userRole) {
+  // Wrong role for this route: send the user to their own home.
+  if (payload.role !== role) {
     const url = req.nextUrl.clone();
-    url.pathname = '/login';
-    return NextResponse.redirect(url);
-  }
-
-  if (role && userRole !== role) {
-    const url = req.nextUrl.clone();
-    url.pathname = homeFor(userRole);
+    url.pathname = homeFor(payload.role);
     return NextResponse.redirect(url);
   }
 
