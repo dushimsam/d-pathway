@@ -14,6 +14,11 @@ export function uploadToCloudinary(
   file: File,
   signed: SignedUpload,
   onProgress?: (percent: number) => void,
+  // 'raw' delivers any file (PDF, ZIP, DOCX…) as-is. Cloudinary classifies a PDF
+  // as an "image" under 'auto', and serving PDFs via the image pipeline is
+  // blocked by default (401). Use 'raw' for downloadable deliverables, 'auto'
+  // (the default) for profile photos / logos that need the image pipeline.
+  resourceType: 'auto' | 'raw' = 'auto',
 ): Promise<UploadResult> {
   return new Promise((resolve, reject) => {
     const form = new FormData();
@@ -26,7 +31,7 @@ export function uploadToCloudinary(
     const xhr = new XMLHttpRequest();
     xhr.open(
       'POST',
-      `https://api.cloudinary.com/v1_1/${signed.cloudName}/auto/upload`,
+      `https://api.cloudinary.com/v1_1/${signed.cloudName}/${resourceType}/upload`,
     );
     xhr.upload.onprogress = (e) => {
       if (e.lengthComputable && onProgress) {

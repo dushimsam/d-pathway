@@ -85,7 +85,9 @@ export default function SubmitDeliverablePage({
       const signed = await api.post<SignedUpload>('/uploads/sign', {
         folder: 'deliverables',
       });
-      const result = await uploadToCloudinary(file, signed, setUploadPct);
+      // 'raw' so any deliverable file type (PDF, ZIP, DOCX…) is served as-is;
+      // PDFs via Cloudinary's image pipeline return 401 by default.
+      const result = await uploadToCloudinary(file, signed, setUploadPct, 'raw');
       setFileUrl(result.secureUrl);
       setFilePublicId(result.publicId);
       setFileName(file.name);
